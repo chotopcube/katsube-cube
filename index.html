@@ -351,10 +351,10 @@ html.par-active, body.par-active {
   align-items: stretch;
   overflow: hidden;
   touch-action: none;
-  /* ノッチ・ホームバー対応 */
+  padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: max(env(safe-area-inset-bottom), 16px);
   box-sizing: border-box;
 }
 .parallel-screen.show { display: flex; }
@@ -369,8 +369,7 @@ html.par-active, body.par-active {
   border: 1px solid #1e3a6e;
   gap: 4px;
   overflow-y: auto;
-  height: 100vh;
-  height: 100dvh;
+  height: 100%;
   box-sizing: border-box;
 }
 .par-panel.right { border-left: none; }
@@ -387,8 +386,7 @@ html.par-active, body.par-active {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  height: 100vh;
-  height: 100dvh;
+  height: 100%;
   box-sizing: border-box;
 }
 /* iPhoneランドスケープ対応：パネルを縮小してボードを最大化 */
@@ -697,7 +695,7 @@ html.par-active, body.par-active {
     </div>
     <div class="back-btn" id="btnDifficultyBack">← 戻る</div>
   </div>
-  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.5  2026-05-31</div>
+  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.6  2026-05-31</div>
 
   <!-- AI対戦用選択画面 -->
   <div class="order-area" id="orderArea">
@@ -779,7 +777,7 @@ html.par-active, body.par-active {
 
   <!-- 中央ボード -->
   <div class="par-board-area">
-    <div id="parBoard" style="width:min(calc(100dvh - env(safe-area-inset-bottom) - 16px), calc(100vw - 40vw - env(safe-area-inset-left) - env(safe-area-inset-right)));height:min(calc(100dvh - env(safe-area-inset-bottom) - 16px), calc(100vw - 40vw - env(safe-area-inset-left) - env(safe-area-inset-right)));aspect-ratio:1/1;display:grid;grid-template-columns:repeat(9,1fr);gap:2px;border:4px solid #3498db;border-radius:8px;padding:4px;box-sizing:border-box;"></div>
+    <div id="parBoard" style="width:min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 32px), calc(100vw - 40vw - env(safe-area-inset-left) - env(safe-area-inset-right)));height:min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 32px), calc(100vw - 40vw - env(safe-area-inset-left) - env(safe-area-inset-right)));aspect-ratio:1/1;display:grid;grid-template-columns:repeat(9,1fr);gap:2px;border:4px solid #3498db;border-radius:8px;padding:4px;box-sizing:border-box;"></div>
   </div>
 
   <!-- 右パネル -->
@@ -857,7 +855,7 @@ const L = {
   orderTitle:   {ja:'あなたはどちらを担当しますか？', ja_slow:'あなたは　どちらを　たんとうしますか？', en:'Which side will you play?'},
   youLabel:     {ja:'あなた',           en:'You'},
   aiLabel:      {ja:'AI',              en:'AI'},
-  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.5  2026-05-31', en:'KATSUBE CUBE  © 1991– Katsube  |  v28.5  2026-05-31'},
+  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.6  2026-05-31', en:'KATSUBE CUBE  © 1991– Katsube  |  v28.6  2026-05-31'},
 };
 
 function applyLang(){
