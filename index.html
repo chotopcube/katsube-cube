@@ -407,9 +407,9 @@ html.par-active, body.par-active {
 
 /* パネル内スコア */
 .par-score-row {
-  display: flex; gap: 8px;
+  display: flex; gap: 4px;
   align-items: center;
-  padding: 2px 0;
+  padding: 1px 0;
 }
 .par-score-item {
   display: flex; align-items: center; gap: 2px;
@@ -428,27 +428,28 @@ html.par-active, body.par-active {
 /* パネル内チップ */
 .par-chip-row {
   display: flex; flex-wrap: wrap;
-  gap: 2px; align-items: center;
-  min-height: 24px;
+  gap: 1px; align-items: center;
+  min-height: 20px;
 }
 .par-chip {
-  width: 20px; height: 20px;
-  border-radius: 3px;
+  width: 17px; height: 17px;
+  border-radius: 2px;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 13px; flex-shrink: 0;
+  font-size: 11px; flex-shrink: 0;
   transition: all 0.15s;
 }
 
 /* パネル内メッセージ */
 .par-msg {
-  font-size: 11px; color: #fff;
-  min-height: 44px;
+  font-size: 9px; color: #fff;
+  min-height: 36px;
   display: flex; align-items: center;
-  text-align: center; line-height: 1.3;
+  text-align: center; line-height: 1.2;
   font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif;
   border-top: 1px solid #1e3a6e;
-  padding-top: 4px;
+  padding-top: 3px;
+  word-break: break-all;
 }
 
 /* パネル内ボタン */
@@ -694,7 +695,7 @@ html.par-active, body.par-active {
     </div>
     <div class="back-btn" id="btnDifficultyBack">← 戻る</div>
   </div>
-  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.11  2026-05-31-05-31-05-316-05-316-05-31</div>
+  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.12  2026-05-31
 
   <!-- AI対戦用選択画面 -->
   <div class="order-area" id="orderArea">
@@ -854,7 +855,7 @@ const L = {
   orderTitle:   {ja:'あなたはどちらを担当しますか？', ja_slow:'あなたは　どちらを　たんとうしますか？', en:'Which side will you play?'},
   youLabel:     {ja:'あなた',           en:'You'},
   aiLabel:      {ja:'AI',              en:'AI'},
-  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.11  2026-05-31-05-31-05-316-05-316-05-31', en:'KATSUBE CUBE  © 1991– Katsube  |  v28.11  2026-05-31-05-31-05-316-05-316-05-31'},
+  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.12  2026-05-31
 };
 
 function applyLang(){
