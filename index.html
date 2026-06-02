@@ -18,8 +18,10 @@ html, body {
   align-items: flex-start;
   font-family: 'Bebas Neue', 'Arial Black', sans-serif;
   overflow: hidden;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  position: fixed;
 }
 .screen {
   width: 100%;
@@ -27,11 +29,11 @@ html, body {
   background: #080d24;
   display: flex;
   flex-direction: column;
-  position: relative;
+  height: 100vh;
+  height: 100dvh;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 100%;
-  max-height: 100dvh;
+  -webkit-overflow-scrolling: touch;
 }
 .header {
   padding: 6px 12px 4px;
@@ -694,7 +696,7 @@ html.par-active, body.par-active {
     </div>
     <div class="back-btn" id="btnDifficultyBack">← 戻る</div>
   </div>
-  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.16  2026-06-02</div>
+  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.17  2026-06-02-1</div>
 
   <!-- AI対戦用選択画面 -->
   <div class="order-area" id="orderArea">
@@ -854,7 +856,7 @@ const L = {
   orderTitle:   {ja:'あなたはどちらを担当しますか？', ja_slow:'あなたは　どちらを　たんとうしますか？', en:'Which side will you play?'},
   youLabel:     {ja:'あなた',           en:'You'},
   aiLabel:      {ja:'AI',              en:'AI'},
-  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.16  2026-06-02', en:'KATSUBE CUBE  © 1991– Katsube  |  v28.16  2026-06-02'},
+  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.17  2026-06-02-1', en:'KATSUBE CUBE  © 1991– Katsube  |  v28.17  2026-06-02-1'},
 };
 
 function applyLang(){
