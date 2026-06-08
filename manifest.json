@@ -1,0 +1,19 @@
+{
+  "name": "KATSUBE CUBE",
+  "short_name": "KATSUBE",
+  "description": "KATSUBE CUBE — a 4-color strategy board game on a 9x9 grid. Play vs AI or 2 players.",
+  "lang": "ja",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080d24",
+  "theme_color": "#080d24",
+  "categories": ["games", "board"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

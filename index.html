@@ -3,31 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<link rel="manifest" href="data:application/manifest+json,{"name": "KATSUBE CUBE", "short_name": "KATSUBE", "display": "standalone", "background_color": "#080d24", "theme_color": "#3498db", "orientation": "any", "start_url": ".", "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='48' height='48' fill='%23e74c3c'/><rect x='52' width='48' height='48' fill='%23f1c40f'/><rect y='52' width='48' height='48' fill='%233498db'/><rect x='52' y='52' width='48' height='48' fill='%232ecc71'/></svg>", "sizes": "any", "type": "image/svg+xml"}]}">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080d24">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="KATSUBE CUBE">
-<meta name="theme-color" content="#3498db">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <title>KATSUBE CUBE</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   background: #000;
+  margin: 0; padding: 0;
+}
+body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   font-family: 'Bebas Neue', 'Arial Black', sans-serif;
-  overflow-y: scroll;
 }
 .screen {
-  width: 100%;
-  max-width: 390px;
+  /* 100vw = スクロールバーに左右されない安定したビューポート幅 */
+  width: min(100vw, 390px);
   background: #080d24;
   display: flex;
   flex-direction: column;
 }
 .header {
-  padding: 6px 12px 4px;
+  padding: 10px 12px 6px;
   border: 1px solid #1e3a6e;
   margin: 8px 8px 6px;
   border-radius: 8px;
@@ -63,12 +69,11 @@ html, body {
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
   gap: 2px; aspect-ratio: 1/1; width: 100%; overflow: visible;
-  contain: layout;
 }
 .cell {
   border-radius: 2px; background: #111830;
   display: flex; align-items: center; justify-content: center;
-  font-size: clamp(16px, 5vw, 22px); font-weight: 700;
+  font-size: 16px; font-weight: 400;
   font-family: 'Bebas Neue', 'Arial Black', sans-serif;
   aspect-ratio: 1/1; position: relative; overflow: visible;
   user-select: none; transition: transform 0.08s; cursor: default;
@@ -109,7 +114,7 @@ html, body {
 .cell.border-bottom-yellow::before { bottom:0;left:0;height:5px;width:100%;background:#f1c40f; }
 .cell.border-bottom-red::before    { bottom:0;left:0;height:5px;width:100%;background:#e74c3c; }
 .board-msg {
-  height: 46px;
+  height: 58px; /* 固定高さ：メッセージ変化で画面ズレ防止 */
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; color: #ffffff;
   text-align: center; padding: 4px 8px;
@@ -171,7 +176,7 @@ html, body {
   min-height: 34px; transform: rotate(180deg);
   text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;
 }
-.modes { padding: 2px 12px 6px; display: flex; flex-direction: column; gap: 3px; }
+.modes { padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
 .mode-btn {
   display: flex; align-items: center; gap: 8px;
   padding: 10px 12px; border-radius: 14px;
@@ -263,7 +268,7 @@ html, body {
 .result-btn:hover { background: #2a4aae; }
 .result-btn.sub { background: #0d1b3e; border: 1px solid #2a4a8e; }
 .footer {
-  padding: 2px 20px 4px;
+  padding: 4px 20px 8px;
   text-align: center;
   font-size: 9px; color: #8899bb; letter-spacing: 1px;
   white-space: nowrap;
@@ -330,7 +335,7 @@ html, body {
   width: 100% !important;
   height: 100% !important;
   aspect-ratio: unset !important;
-  font-size: clamp(15px, 5vmin, 26px) !important;
+  font-size: clamp(8px, 2.2vmin, 18px) !important;
 }
 
 /* 並列モード：position:fixedを廃止しhtml/bodyを100vh化して全画面表示（iPad対応） */
@@ -342,32 +347,29 @@ html.par-active, body.par-active {
 .screen.par-hidden { display: none !important; }
 .parallel-screen {
   display: none;
-  width: 100vw;
-  max-width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  /* position:fixedで文書フローから切り離し → iOS Safariのアドレスバー出入りによる振動を防止 */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
   background: #080d24;
   flex-direction: row;
   align-items: stretch;
   overflow: hidden;
-  touch-action: none;
-  padding-top: env(safe-area-inset-top);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: max(env(safe-area-inset-bottom), 16px);
-  box-sizing: border-box;
+  z-index: 100;
 }
 .parallel-screen.show { display: flex; }
 
 /* 左右パネル */
 .par-panel {
-  width: 20vw; min-width: 75px; max-width: 150px;
+  /* 幅: 小画面22vw〜大画面で最大220pxまで */
+  width: clamp(110px, 22vw, 220px);
   flex-shrink: 0;
   display: flex; flex-direction: column;
-  padding: 8px 6px;
+  padding: clamp(4px, 1.5vh, 10px) clamp(4px, 1vw, 8px);
   background: #080d24;
   border: 1px solid #1e3a6e;
-  gap: 4px;
+  gap: clamp(2px, 1vh, 6px);
   overflow-y: auto;
   height: 100%;
   box-sizing: border-box;
@@ -389,26 +391,19 @@ html.par-active, body.par-active {
   height: 100%;
   box-sizing: border-box;
 }
-/* iPhoneランドスケープ対応：パネルを縮小してボードを最大化 */
+/* ランドスケープ：小画面(高さ≤500px)のみパネルをさらに縮小してボードを優先 */
 @media (max-height: 500px) and (orientation: landscape) {
   .par-panel {
-    width: 16vw;
-    min-width: 72px;
-    max-width: 120px;
-    padding: 4px 3px;
+    width: clamp(90px, 16vw, 140px);
+    padding: 3px;
     gap: 2px;
-    font-size: 11px;
   }
-  .par-score-row { gap: 1px; font-size: 10px; }
-  .par-chip-row  { gap: 1px; }
-  .par-msg       { font-size: 10px; min-height: 24px; padding: 2px; }
-  .par-btn       { font-size: 10px; padding: 4px 2px; }
-  .par-btn-row   { gap: 3px; }
+  .par-btn-row { gap: 2px; }
 }
 
 /* パネル内スコア */
 .par-score-row {
-  display: flex; gap: 8px;
+  display: flex; gap: clamp(4px, 1vw, 10px);
   align-items: center;
   padding: 2px 0;
 }
@@ -417,11 +412,12 @@ html.par-active, body.par-active {
   font-family: 'Bebas Neue', sans-serif;
 }
 .par-square {
-  width: 14px; height: 14px;
+  width: clamp(10px, 1.8vw, 16px);
+  height: clamp(10px, 1.8vw, 16px);
   border-radius: 1px; flex-shrink: 0;
 }
 .par-count {
-  font-size: 16px;
+  font-size: clamp(13px, 2.5vw, 20px);
   font-family: 'Bebas Neue', sans-serif;
   color: #fff;
 }
@@ -430,34 +426,35 @@ html.par-active, body.par-active {
 .par-chip-row {
   display: flex; flex-wrap: wrap;
   gap: 2px; align-items: center;
-  min-height: 24px;
+  min-height: clamp(20px, 4vh, 30px);
 }
 .par-chip {
-  width: 20px; height: 20px;
+  width: clamp(16px, 2.8vw, 22px);
+  height: clamp(16px, 2.8vw, 22px);
   border-radius: 3px;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 13px; flex-shrink: 0;
+  font-size: clamp(10px, 1.8vw, 14px); flex-shrink: 0;
   transition: all 0.15s;
 }
 
 /* パネル内メッセージ */
 .par-msg {
-  font-size: 9px; color: #fff;
-  min-height: 36px;
+  font-size: clamp(11px, 1.9vw, 14px); color: #fff;
+  min-height: clamp(28px, 8vh, 56px);
+  flex: 1;
   display: flex; align-items: center;
-  text-align: center; line-height: 1.2;
+  text-align: center; line-height: 1.35;
   font-family: 'Noto Sans JP', 'Helvetica Neue', Arial, sans-serif;
   border-top: 1px solid #1e3a6e;
-  padding-top: 3px;
-  word-break: break-all;
+  padding-top: 4px;
 }
 
 /* パネル内ボタン */
 .par-btn {
-  padding: 6px 4px; border-radius: 8px;
+  padding: clamp(4px, 1vh, 8px) clamp(3px, 0.8vw, 6px); border-radius: 8px;
   border: 1px solid #2a4a8e; background: #0d1b3e;
-  color: #8899bb; font-size: 11px;
+  color: #8899bb; font-size: clamp(10px, 1.8vw, 13px);
   font-family: 'Bebas Neue', sans-serif;
   cursor: pointer; text-align: center;
   transition: background 0.15s;
@@ -478,31 +475,130 @@ html.par-active, body.par-active {
   padding: 8px 0 4px;
   text-transform: uppercase;
 }
-
-@media(max-width:500px){.par-panel{width:19vw;min-width:68px;max-width:90px;padding:4px 3px;gap:2px}.par-panel .par-btn{font-size:9px;padding:4px 2px}.par-panel .par-msg{font-size:8px}.par-panel .par-count{font-size:12px}.par-panel .par-chip{width:15px;height:15px;font-size:9px}}
-@media(max-width:400px){.par-panel{width:18vw;min-width:60px;padding:3px 2px}.par-panel .par-btn{font-size:8px;padding:3px 1px}}
-
-/* ===== iPad / 大画面対応 ===== */
-@media (min-width: 600px) {
-  html, body {
-    align-items: center;
-  }
-  .screen {
-    max-width: 520px;
-    zoom: 1.33;
-  }
+/* ===== 競技モード：時間設定画面 ===== */
+.time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 8px; }
+.time-btn {
+  background: #0f1f44; border: 1px solid #1e3a6e; border-radius: 8px;
+  color: #cfe0ff; text-align: center; padding: 14px 8px; cursor: pointer;
+  font-family: 'Bebas Neue','Arial Black',sans-serif; font-size: 20px; letter-spacing: 1px;
+  transition: background 0.15s, border-color 0.15s;
 }
-@media (min-width: 900px) {
-  .screen {
-    max-width: 600px;
-    zoom: 1.54;
-  }
+.time-btn:hover { background: #1a3a8e; color: #fff; border-color: #3a6aee; }
+.time-btn.sel { background: #1a3a8e; color: #fff; border-color: #ffaa00; }
+.time-custom {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 12px 8px 4px; color: #aabbcc; font-family: 'Noto Sans JP', Arial, sans-serif; font-size: 13px;
 }
-@media (min-width: 1200px) {
-  .screen {
-    max-width: 650px;
-    zoom: 1.67;
-  }
+.time-custom input {
+  width: 64px; background: #0a1430; border: 1px solid #1e3a6e; border-radius: 6px;
+  color: #fff; font-size: 16px; text-align: center; padding: 6px 4px;
+  font-family: 'Bebas Neue', sans-serif;
+}
+.time-note { font-size: 10px; color: #7799bb; text-align: center; margin: 6px 12px 0; line-height: 1.5; font-family: 'Noto Sans JP', Arial, sans-serif; }
+/* ===== 競技モード：チェスクロック表示 ===== */
+.vs-clock {
+  font-family: 'Bebas Neue', monospace; font-size: 22px; letter-spacing: 1px;
+  color: #aabbcc; background: #0a1430; border: 1px solid #1e3a6e; border-radius: 6px;
+  padding: 2px 10px; min-width: 70px; text-align: center; flex-shrink: 0;
+}
+.vs-clock.active { color: #fff; border-color: #2ecc71; box-shadow: 0 0 8px #2ecc7166; background: #0c2a18; }
+.vs-clock.low { color: #ff6666; border-color: #ff4444; }
+.vs-clock.low.active { animation: waitBlink 0.7s ease-in-out infinite; }
+.vs-clock.dim { color: #5a6a8a; font-size: 16px; }
+.par-clock {
+  font-family: 'Bebas Neue', monospace; font-size: 26px; letter-spacing: 1px;
+  color: #aabbcc; background: #0a1430; border: 1px solid #1e3a6e; border-radius: 8px;
+  padding: 4px 8px; text-align: center; margin: 4px 0;
+}
+.par-clock.active { color: #fff; border-color: #2ecc71; box-shadow: 0 0 10px #2ecc7166; background: #0c2a18; }
+.par-clock.low { color: #ff6666; border-color: #ff4444; }
+.par-clock.low.active { animation: waitBlink 0.7s ease-in-out infinite; }
+/* ===== 言語セレクタ ===== */
+.lang-menu {
+  display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; z-index: 9999;
+  background: #0c1838; border: 1px solid #2a4a8e; border-radius: 8px; padding: 4px;
+  box-shadow: 0 6px 20px #000a; min-width: 110px;
+}
+.lang-menu.show { display: block; }
+.lang-menu .lang-item {
+  padding: 7px 12px; border-radius: 6px; color: #cfe0ff; cursor: pointer;
+  font-family: 'Noto Sans JP', Arial, sans-serif; font-size: 13px; white-space: nowrap;
+}
+.lang-menu .lang-item:hover { background: #1a3a8e; color: #fff; }
+.lang-menu .lang-item.cur { background: #16306e; color: #fff; font-weight: 700; }
+/* ===== AI強化モード ===== */
+.train-progress {
+  font-family: 'Noto Sans JP', Arial, sans-serif;
+  font-size: 12px; color: #aaddff;
+  text-align: center; padding: 4px 8px;
+  background: #0d1b3e; border-radius: 6px;
+  border: 1px solid #2a4a8e; margin: 2px 0;
+  letter-spacing: 1px;
+}
+.train-progress strong { color: #2ecc71; }
+.train-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88); z-index: 200;
+  align-items: center; justify-content: center;
+  padding: 16px;
+}
+.train-overlay.show { display: flex; }
+.train-card {
+  background: #080d24; border: 2px solid #3498db;
+  border-radius: 14px; padding: 20px 18px;
+  max-width: 400px; width: 100%;
+  box-shadow: 0 0 20px #3498db55;
+  max-height: 90vh; overflow-y: auto;
+}
+.train-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; color: #fff; letter-spacing: 3px;
+  text-align: center; margin-bottom: 12px;
+}
+.train-section {
+  border-top: 1px solid #1e3a6e; padding-top: 10px;
+  margin-top: 10px;
+}
+.train-section-label {
+  font-size: 10px; color: #7799bb;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 6px;
+  font-family: 'Bebas Neue', sans-serif;
+}
+.train-row {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 3px 0;
+  font-family: 'Noto Sans JP', Arial, sans-serif;
+  font-size: 12px; color: #cce0ff;
+}
+.train-row .val { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: #fff; }
+.train-row .val.good { color: #2ecc71; }
+.train-row .val.bad  { color: #e74c3c; }
+.train-adj-row {
+  background: #0d1b3e; border-radius: 8px;
+  padding: 8px 10px; margin: 4px 0;
+  border-left: 3px solid #3498db;
+}
+.train-adj-row.up   { border-left-color: #2ecc71; }
+.train-adj-row.down { border-left-color: #e74c3c; }
+.train-adj-name { font-size: 12px; color: #fff; font-family: 'Noto Sans JP', Arial, sans-serif; }
+.train-adj-detail { font-size: 11px; color: #7799bb; margin-top: 2px; font-family: 'Noto Sans JP', Arial, sans-serif; }
+.train-btn {
+  display: block; width: 100%; padding: 10px;
+  border-radius: 10px; border: none; cursor: pointer;
+  font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+  letter-spacing: 2px; margin-top: 10px;
+  transition: background 0.15s;
+}
+.train-btn.apply { background: #2ecc71; color: #0a1a0a; }
+.train-btn.apply:hover { background: #3eff8a; }
+.train-btn.close { background: #1a3a8e; color: #fff; }
+.train-btn.close:hover { background: #2a4aae; }
+.train-verdict {
+  font-size: 13px; color: #fff; text-align: center;
+  font-family: 'Noto Sans JP', Arial, sans-serif;
+  padding: 8px; background: #0a1528; border-radius: 8px;
+  line-height: 1.6;
 }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
@@ -522,7 +618,10 @@ html.par-active, body.par-active {
     <div class="logo-sub-row">
       <div class="app-icon-spacer"></div>
       <div class="game-sub">4-COLOR BOARD GAME · 9×9</div>
-      <div class="lang-btn" id="btnLang">EN</div>
+      <div style="position:relative; margin-left:auto;">
+        <div class="lang-btn" id="btnLang">日本語</div>
+        <div class="lang-menu" id="langMenu"></div>
+      </div>
     </div>
   </div>
 
@@ -565,6 +664,7 @@ html.par-active, body.par-active {
         </div>
       </div>
       <div id="guestChipRow" style="display:flex;align-items:center;gap:4px;flex-shrink:0;"></div>
+      <div class="vs-clock" id="vsTopClock" style="display:none;">30:00</div>
     </div>
     <div class="vs-msg" id="mirrorMsg" style="min-height:52px;display:flex;align-items:center;justify-content:center;padding:3px 8px;font-size:13px;color:#fff;font-family:'Noto Sans JP','Helvetica Neue',Arial,sans-serif;">メッセージ</div>
     <div id="guestCtrlRow" style="display:none;">
@@ -611,6 +711,7 @@ html.par-active, body.par-active {
         </div>
       </div>
       <div id="turnChipRow" style="display:flex;align-items:center;gap:4px;flex-shrink:0;"></div>
+      <div class="vs-clock" id="vsBotClock" style="display:none;">30:00</div>
     </div>
   </div>
 
@@ -654,7 +755,7 @@ html.par-active, body.par-active {
 
   <!-- ===== 難易度選択メニュー ===== -->
   <div class="modes" id="difficultyMenu">
-    <div class="difficulty-label">モードを選んでください</div>
+    <div class="difficulty-label" id="diffLabel">モードを選んでください</div>
     <div class="mode-btn" id="btnRelax">
       <div class="mode-icon ai">🌿</div>
       <div class="mode-text">
@@ -671,11 +772,11 @@ html.par-active, body.par-active {
       </div>
       <span class="mode-arrow">›</span>
     </div>
-    <div class="mode-btn" id="btnCompetition" style="opacity:0.5;">
+    <div class="mode-btn" id="btnCompetition">
       <div class="mode-icon" style="font-size:22px;">⏱️</div>
       <div class="mode-text">
         <span class="mode-title">競技モード</span>
-        <span class="mode-desc" style="color:#ffaa00;">近日公開 — タイマー制の本格対戦</span>
+        <span class="mode-desc" style="color:#ffaa00;">タイマー制の本格対戦</span>
       </div>
       <span class="mode-arrow">›</span>
     </div>
@@ -710,7 +811,27 @@ html.par-active, body.par-active {
     </div>
     <div class="back-btn" id="btnDifficultyBack">← 戻る</div>
   </div>
-  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v28.19  2026-06-02-3</div>
+
+  <!-- ===== 競技モード：持ち時間設定 ===== -->
+  <div class="modes" id="timeMenu" style="display:none;">
+    <div class="difficulty-label" id="timeLabel">🏆 競技モード — 各自の持ち時間を選んでください</div>
+    <div class="time-grid">
+      <div class="time-btn" data-min="30">30 分</div>
+      <div class="time-btn" data-min="45">45 分</div>
+      <div class="time-btn" data-min="60">60 分</div>
+      <div class="time-btn" data-min="90">90 分</div>
+    </div>
+    <div class="time-custom">
+      <span id="timeOtherLabel">その他：</span>
+      <input id="timeCustomInput" type="number" min="30" max="180" step="5" value="30">
+      <span id="timeMinLabel">分</span>
+      <div class="time-btn" id="timeCustomGo" style="padding:6px 14px;font-size:15px;">決定</div>
+    </div>
+    <div class="time-note" id="timeNote">サドンデス制：持ち時間が0になり対局中ならその人の負け。<br>81マス（オセロは64マス）なので30分以上を推奨します。</div>
+    <div class="back-btn" id="btnTimeBack">← 戻る</div>
+  </div>
+
+  <div class="footer" id="mainFooter">KATSUBE CUBE  © 1991– Katsube  |  v29.0  2026-06-04</div>
 
   <!-- AI対戦用選択画面 -->
   <div class="order-area" id="orderArea">
@@ -780,6 +901,7 @@ html.par-active, body.par-active {
   <!-- 左パネル -->
   <div class="par-panel left" id="parLeft">
     <div id="parLeftLabel" style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#aabbcc;text-align:center;border-bottom:1px solid #1e3a6e;padding-bottom:4px;"></div>
+    <div class="par-clock" id="parLeftClock" style="display:none;">30:00</div>
     <div class="par-score-row" id="parLeftScore"></div>
     <div class="par-chip-row" id="parLeftChips"></div>
     <div class="par-msg" id="parLeftMsg">-</div>
@@ -792,12 +914,13 @@ html.par-active, body.par-active {
 
   <!-- 中央ボード -->
   <div class="par-board-area">
-    <div id="parBoard" style="width:min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 60px), calc(100vw - 40vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 8px));height:min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 60px), calc(100vw - 40vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 8px));aspect-ratio:1/1;display:grid;grid-template-columns:repeat(9,1fr);gap:2px;border:4px solid #3498db;border-radius:8px;padding:4px;box-sizing:border-box;"></div>
+    <div id="parBoard" style="height:min(calc(100vh - 16px), calc(100vw - 340px));width:min(calc(100vh - 16px), calc(56vw));height:min(calc(100vh - 16px), calc(56vw));aspect-ratio:1/1;display:grid;grid-template-columns:repeat(9,1fr);gap:2px;border:4px solid #3498db;border-radius:8px;padding:4px;box-sizing:border-box;"></div>
   </div>
 
   <!-- 右パネル -->
   <div class="par-panel right" id="parRight">
     <div id="parRightLabel" style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:#aabbcc;text-align:center;border-bottom:1px solid #1e3a6e;padding-bottom:4px;"></div>
+    <div class="par-clock" id="parRightClock" style="display:none;">30:00</div>
     <div class="par-score-row" id="parRightScore"></div>
     <div class="par-chip-row" id="parRightChips"></div>
     <div class="par-msg" id="parRightMsg">-</div>
@@ -848,35 +971,480 @@ html.par-active, body.par-active {
   };
 
 let lang = 'ja';
+// 対応言語（codeとセレクタ表示名）。ja/en以外は順次拡充。
+const LANGS = [
+  {code:'ja', name:'日本語'},
+  {code:'en', name:'English'},
+  {code:'zh', name:'中文(简)'},
+  {code:'tw', name:'繁體中文'},
+  {code:'ko', name:'한국어'},
+  {code:'hi', name:'हिन्दी'},
+  {code:'es', name:'Español'},
+  {code:'fr', name:'Français'},
+];
 
 const L = {
-  sente:        {ja:'先手チーム',       en:'Team 1st'},
-  gote:         {ja:'後手チーム',       en:'Team 2nd'},
-  btnAI:        {ja:'AI と対戦',        ja_slow:'AIと　たいせん',        en:'vs AI'},
-  btnAIdesc:    {ja:'先手(1・3番) または 後手(2・4番) を選んで対戦', ja_slow:'せんて（1ばん・3ばん）か　ごて（2ばん・4ばん）を　えらんで　たいせん', en:'Play as 1st(1&3) or 2nd(2&4)'},
-  btnVS:        {ja:'2人で対戦',        ja_slow:'ふたりで　たいせん',    en:'2 Players'},
-  btnVSdesc:    {ja:'向かい合って1台で対戦する', ja_slow:'むかいあって　1だいで　たいせんする', en:'Face-to-face on one device'},
-  btnSlow:      {ja:'ゆっくりモード',   en:'Slow Mode'},
-  btnSlowDesc:  {ja:'よみやすく　ていねいに　せつめいします', en:'Easy to read, step by step'},
-  pickFirst:    {ja:'先手', ja_slow:'せんて（1ばん・3ばん）', en:'1st'},
-  pickFirstDesc:{ja:'', ja_slow:'', en:''},
-  pickSecond:   {ja:'後手', ja_slow:'ごて（2ばん・4ばん）', en:'2nd'},
-  pickSecondDesc:{ja:'', ja_slow:'', en:''},
-  vsParallel:   {ja:'並列モード', ja_slow:'ならびモード', en:'Side by Side'},
-  btnUndo:      {ja:'1手戻す',          ja_slow:'1て　もどす',           en:'Undo'},
-  btnQuit:      {ja:'メニューへ',       ja_slow:'メニューへ',            en:'Menu'},
-  retry:        {ja:'もう一度',         ja_slow:'もういちど',            en:'Play Again'},
-  toMenu:       {ja:'メニューへ戻る',   ja_slow:'メニューへ　もどる',    en:'Back to Menu'},
-  orderTitle:   {ja:'あなたはどちらを担当しますか？', ja_slow:'あなたは　どちらを　たんとうしますか？', en:'Which side will you play?'},
-  youLabel:     {ja:'あなた',           en:'You'},
-  aiLabel:      {ja:'AI',              en:'AI'},
-  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v28.19  2026-06-02-3', en:'KATSUBE CUBE  © 1991– Katsube  |  v28.19  2026-06-02-3'},
+  sente:        {ja:'先手チーム', en:'Team 1st', zh:'先手队', tw:'先手隊', ko:'선공 팀', hi:'पहली टीम', es:'Equipo 1º', fr:'Équipe 1'},
+  gote:         {ja:'後手チーム', en:'Team 2nd', zh:'后手队', tw:'後手隊', ko:'후공 팀', hi:'दूसरी टीम', es:'Equipo 2º', fr:'Équipe 2'},
+  btnAI:        {ja:'AI と対戦', ja_slow:'AIと　たいせん', en:'vs AI', zh:'对战 AI', tw:'對戰 AI', ko:'AI와 대전', hi:'AI से खेलें', es:'vs IA', fr:'vs IA'},
+  btnAIdesc:    {ja:'先手(1・3番) または 後手(2・4番) を選んで対戦', ja_slow:'せんて（1ばん・3ばん）か　ごて（2ばん・4ばん）を　えらんで　たいせん', en:'Play as 1st(1&3) or 2nd(2&4)', zh:'选择先手(1·3)或后手(2·4)对战', tw:'選擇先手(1·3)或後手(2·4)對戰', ko:'선공(1·3) 또는 후공(2·4)을 골라 대전', hi:'पहली(1·3) या दूसरी(2·4) टीम चुनें', es:'Juega como 1º(1·3) o 2º(2·4)', fr:'Jouez 1er(1·3) ou 2e(2·4)'},
+  btnVS:        {ja:'2人で対戦', ja_slow:'ふたりで　たいせん', en:'2 Players', zh:'双人对战', tw:'雙人對戰', ko:'2인 대전', hi:'2 खिलाड़ी', es:'2 jugadores', fr:'2 joueurs'},
+  btnVSdesc:    {ja:'向かい合って1台で対戦する', ja_slow:'むかいあって　1だいで　たいせんする', en:'Face-to-face on one device', zh:'面对面共用一台设备', tw:'面對面共用一台裝置', ko:'한 기기로 마주 보고 대전', hi:'एक डिवाइस पर आमने-सामने', es:'Cara a cara en un dispositivo', fr:'Face à face sur un appareil'},
+  btnSlow:      {ja:'ゆっくりモード', en:'Slow Mode', zh:'慢速模式', tw:'慢速模式', ko:'천천히 모드', hi:'धीमा मोड', es:'Modo lento', fr:'Mode lent'},
+  btnSlowDesc:  {ja:'よみやすく　ていねいに　せつめいします', en:'Easy to read, step by step', zh:'易读，逐步说明', tw:'易讀，逐步說明', ko:'읽기 쉽게 차근차근 설명', hi:'पढ़ने में आसान, कदम-दर-कदम', es:'Fácil de leer, paso a paso', fr:'Facile à lire, étape par étape'},
+  pickFirst:    {ja:'先手', ja_slow:'せんて（1ばん・3ばん）', en:'1st', zh:'先手', tw:'先手', ko:'선공', hi:'पहले', es:'1º', fr:'1er'},
+  pickFirstDesc:{ja:'', en:''},
+  pickSecond:   {ja:'後手', ja_slow:'ごて（2ばん・4ばん）', en:'2nd', zh:'后手', tw:'後手', ko:'후공', hi:'दूसरे', es:'2º', fr:'2e'},
+  pickSecondDesc:{ja:'', en:''},
+  vsParallel:   {ja:'並列モード', ja_slow:'ならびモード', en:'Side by Side', zh:'并排模式', tw:'並排模式', ko:'나란히 모드', hi:'साथ-साथ मोड', es:'Lado a lado', fr:'Côte à côte'},
+  btnUndo:      {ja:'1手戻す', ja_slow:'1て　もどす', en:'Undo', zh:'悔棋', tw:'悔棋', ko:'무르기', hi:'पूर्ववत्', es:'Deshacer', fr:'Annuler'},
+  btnQuit:      {ja:'メニューへ', ja_slow:'メニューへ', en:'Menu', zh:'菜单', tw:'選單', ko:'메뉴', hi:'मेन्यू', es:'Menú', fr:'Menu'},
+  retry:        {ja:'もう一度', ja_slow:'もういちど', en:'Play Again', zh:'再来一局', tw:'再來一局', ko:'다시 하기', hi:'फिर से', es:'Jugar otra vez', fr:'Rejouer'},
+  toMenu:       {ja:'メニューへ戻る', ja_slow:'メニューへ　もどる', en:'Back to Menu', zh:'返回菜单', tw:'返回選單', ko:'메뉴로 돌아가기', hi:'मेन्यू पर वापस', es:'Volver al menú', fr:'Retour au menu'},
+  orderTitle:   {ja:'あなたはどちらを担当しますか？', ja_slow:'あなたは　どちらを　たんとうしますか？', en:'Which side will you play?', zh:'你执哪一方？', tw:'你執哪一方？', ko:'어느 편을 맡을까요?', hi:'आप कौन सा पक्ष खेलेंगे?', es:'¿Qué lado jugarás?', fr:'Quel camp jouez-vous ?'},
+  youLabel:     {ja:'あなた', en:'You', zh:'你', tw:'你', ko:'나', hi:'आप', es:'Tú', fr:'Vous'},
+  aiLabel:      {ja:'AI', en:'AI', zh:'AI', tw:'AI', ko:'AI', hi:'AI', es:'IA', fr:'IA'},
+  // --- 直書きメニュー（難易度/対戦形式/時間設定/戻る）---
+  selectMode:   {ja:'モードを選んでください', en:'Choose a mode', zh:'选择模式', tw:'選擇模式', ko:'모드를 선택하세요', hi:'मोड चुनें', es:'Elige un modo', fr:'Choisissez un mode'},
+  relaxT:       {ja:'リラックスモード', en:'Relax Mode', zh:'休闲模式', tw:'休閒模式', ko:'릴랙스 모드', hi:'आराम मोड', es:'Modo relax', fr:'Mode détente'},
+  relaxD:       {ja:'AIは先に角を取りません。時間制限なし。道しるべ付き', en:"AI won't take corners first. No time limit. With hints.", zh:'AI不会先抢角。无时间限制。含提示', tw:'AI不會先搶角。無時間限制。含提示', ko:'AI가 먼저 모서리를 잡지 않음. 시간 제한 없음. 길잡이 포함', hi:'AI पहले कोना नहीं लेगा। समय सीमा नहीं। संकेत सहित।', es:'La IA no toma esquinas primero. Sin límite de tiempo. Con pistas.', fr:"L'IA ne prend pas les coins d'abord. Sans limite de temps. Avec indices."},
+  interT:       {ja:'中級モード', en:'Intermediate', zh:'中级模式', tw:'中級模式', ko:'중급 모드', hi:'मध्यम मोड', es:'Intermedio', fr:'Intermédiaire'},
+  interD:       {ja:'時間制限なし。AIは最善手で対戦', en:'No time limit. AI plays its best.', zh:'无时间限制。AI全力对战', tw:'無時間限制。AI全力對戰', ko:'시간 제한 없음. AI가 최선을 다해 대전', hi:'समय सीमा नहीं। AI अपनी सर्वश्रेष्ठ चाल खेलता है।', es:'Sin límite de tiempo. La IA juega lo mejor.', fr:"Sans limite de temps. L'IA joue au mieux."},
+  compT:        {ja:'競技モード', en:'Competition', zh:'竞技模式', tw:'競技模式', ko:'경기 모드', hi:'प्रतियोगिता मोड', es:'Competición', fr:'Compétition'},
+  compD:        {ja:'タイマー制の本格対戦', en:'Serious play with a chess clock', zh:'带计时器的正式对战', tw:'帶計時器的正式對戰', ko:'체스 시계를 사용한 본격 대전', hi:'टाइमर के साथ गंभीर खेल', es:'Partida seria con reloj', fr:'Partie sérieuse avec pendule'},
+  selectFormat: {ja:'対戦形式を選んでください', en:'Choose a match type', zh:'选择对战形式', tw:'選擇對戰形式', ko:'대전 형식을 선택하세요', hi:'मैच का प्रकार चुनें', es:'Elige el tipo de partida', fr:'Choisissez le type de match'},
+  subVST:       {ja:'対面モード', en:'Face-to-Face', zh:'面对面模式', tw:'面對面模式', ko:'대면 모드', hi:'आमने-सामने मोड', es:'Cara a cara', fr:'Face à face'},
+  subVSD:       {ja:'向かい合って1台で対戦する', en:'Play face-to-face on one device', zh:'面对面共用一台设备对战', tw:'面對面共用一台裝置對戰', ko:'한 기기로 마주 보고 대전', hi:'एक डिवाइस पर आमने-सामने खेलें', es:'Juega cara a cara en un dispositivo', fr:'Jouez face à face sur un appareil'},
+  subParT:      {ja:'平行モード', en:'Side by Side', zh:'并排模式', tw:'並排模式', ko:'나란히 모드', hi:'साथ-साथ मोड', es:'Lado a lado', fr:'Côte à côte'},
+  subParD:      {ja:'横並びで1台を共有して対戦', en:'Share one device side by side', zh:'并排共享一台设备对战', tw:'並排共享一台裝置對戰', ko:'나란히 한 기기를 공유해 대전', hi:'साथ-साथ एक डिवाइस साझा करें', es:'Comparte un dispositivo lado a lado', fr:'Partagez un appareil côte à côte'},
+  back:         {ja:'← 戻る', en:'← Back', zh:'← 返回', tw:'← 返回', ko:'← 뒤로', hi:'← वापस', es:'← Atrás', fr:'← Retour'},
+  timeTitle:    {ja:'各自の持ち時間を選んでください', en:"Choose each player's time", zh:'选择各方的持时', tw:'選擇各方的持時', ko:'각자의 제한 시간을 선택하세요', hi:'हर खिलाड़ी का समय चुनें', es:'Elige el tiempo de cada jugador', fr:'Choisissez le temps de chaque joueur'},
+  timeOther:    {ja:'その他：', en:'Other:', zh:'其他：', tw:'其他：', ko:'기타:', hi:'अन्य:', es:'Otro:', fr:'Autre :'},
+  timeMin:      {ja:'分', en:'min', zh:'分', tw:'分', ko:'분', hi:'मिनट', es:'min', fr:'min'},
+  timeGo:       {ja:'決定', en:'OK', zh:'确定', tw:'確定', ko:'확인', hi:'ठीक', es:'OK', fr:'OK'},
+  timeNote:     {ja:'サドンデス制：持ち時間が0になり対局中ならその人の負け。<br>81マス（オセロは64マス）なので30分以上を推奨します。', en:'Sudden death: if your clock hits 0 during play, you lose.<br>81 squares (Othello has 64), so 30+ minutes recommended.', zh:'骤死制：对局中持时归零者判负。<br>81格（黑白棋为64格），建议30分钟以上。', tw:'驟死制：對局中持時歸零者判負。<br>81格（黑白棋為64格），建議30分鐘以上。', ko:'서든데스: 대국 중 시간이 0이 되면 패배.<br>81칸(오델로는 64칸)이라 30분 이상 권장.', hi:'सडन डेथ: खेल के दौरान समय 0 हुआ तो हार।<br>81 खाने (ओथेलो में 64), इसलिए 30+ मिनट सुझाया जाता है।', es:'Muerte súbita: si tu reloj llega a 0 en juego, pierdes.<br>81 casillas (Othello tiene 64); se recomiendan 30+ min.', fr:'Mort subite : si votre pendule atteint 0 en jeu, vous perdez.<br>81 cases (Othello en a 64), donc 30+ min recommandé.'},
+  footer:       {ja:'KATSUBE CUBE  © 1991– Katsube  |  v29.0  2026-06-04', en:'KATSUBE CUBE  © 1991– Katsube  |  v29.0  2026-06-04'},
+  demoPrev:     {ja:'◀ 前へ', en:'◀ Prev', zh:'◀ 上一步', tw:'◀ 上一步', ko:'◀ 이전', hi:'◀ पिछला', es:'◀ Anterior', fr:'◀ Précéd.'},
+  demoNext:     {ja:'次へ ▶', en:'Next ▶', zh:'下一步 ▶', tw:'下一步 ▶', ko:'다음 ▶', hi:'अगला ▶', es:'Siguiente ▶', fr:'Suivant ▶'},
+  demoPause:    {ja:'⏸ タップで一時停止', en:'⏸ Tap to pause', zh:'⏸ 点击暂停', tw:'⏸ 點擊暫停', ko:'⏸ 탭하여 일시정지', hi:'⏸ रोकने हेतु टैप', es:'⏸ Toca para pausar', fr:'⏸ Toucher pour pause'},
+  demoResume:   {ja:'▶ タップで再開', en:'▶ Tap to resume', zh:'▶ 点击继续', tw:'▶ 點擊繼續', ko:'▶ 탭하여 재개', hi:'▶ जारी रखने हेतु टैप', es:'▶ Toca para seguir', fr:'▶ Toucher pour reprendre'},
 };
 
+// N言語対応リゾルバ：ja=日本語(ゆっくり対応)、その他はその言語→英語→日本語の順でフォールバック
+function LX(key){
+  const e = L[key]; if(!e) return '';
+  if(lang==='ja') return (slowMode && e.ja_slow) ? e.ja_slow : e.ja;
+  return e[lang] || e.en || e.ja;
+}
+function langName(code){ const o=LANGS.find(l=>l.code===code); return o?o.name:code; }
+
+// 日本語(通常)文字列をキーにした翻訳マップ。M()が新言語で参照する。
+// 未登録の言語/文字列は英語→日本語にフォールバック。デモ(表紙)のルール説明を収録。
+const MT = {
+  ko: {
+    'KATSUBE CUBEは4色のボードゲームです。':'KATSUBE CUBE는 4색 보드게임입니다.',
+    '先手は1と3、後手は2と4。１人が2つの駒を持ちます。':'선공은 1과 3, 후공은 2와 4. 한 사람이 말 두 개를 가집니다.',
+    '勝者は4色の中で最も多い1色を持つ者。2つの合計ではありません。':'승자는 네 색 중 한 색이 가장 많은 사람. 두 색의 합계가 아닙니다.',
+    '１は必ず中央にあります。':'1은 반드시 중앙에 있습니다.',
+    '2はこの4マスのいずれかに置きます':'2는 이 네 칸 중 하나에 둡니다',
+    '2が置かれました':'2를 두었습니다',
+    '３はこのマスのいずれかに置きます':'3은 이 칸 중 하나에 둡니다',
+    '３が置かれました':'3을 두었습니다',
+    '４が2×2を完成させます':'4가 2×2를 완성합니다',
+    '2×2が完成！ここから挟んで陣地を広げます':'2×2 완성! 여기서부터 끼워 진영을 넓힙니다',
+    '１が２を横挟みしました。２が0個になりました！':'1이 2를 가로로 끼웠습니다. 2가 0개가 되었습니다!',
+    '２は0にされたので外周を除いて２個置けます。盤上の駒の隣ならどこでも置けます。':'2가 0이 되어 외곽을 제외하고 2개 둘 수 있습니다. 판 위 말 옆이면 어디든 가능합니다.',
+    '２が2個置きました。密集の中に配置。次の番で挟みやすくなります':'2가 2개 두었습니다. 밀집된 곳에 두어 다음 차례에 끼우기 쉬워집니다',
+    '３が置きました':'3을 두었습니다',
+    '４が置きました':'4를 두었습니다',
+    '【例２】今度は１が４を斜め挟みで0にします。相手を0にするのはOK':'【예2】이번엔 1이 4를 대각선으로 끼워 0으로. 상대를 0으로 만드는 건 OK',
+    '１が４を斜め挟みしました。４が0個になりました！':'1이 4를 대각선으로 끼웠습니다. 4가 0개가 되었습니다!',
+    '２が置きました':'2를 두었습니다',
+    '４は0にされました！外周を除いて盤上の駒の隣に２個置けます。':'4가 0이 되었습니다! 외곽을 제외하고 판 위 말 옆에 2개 둘 수 있습니다.',
+    '４が2個置きました。ゲームが続きます':'4가 2개 두었습니다. 게임이 계속됩니다',
+    '【角の取り方①対角線】駒を対角線上に並べて角を取ります（最短3手）':'【모서리 잡기①대각선】말을 대각선으로 늘어놓아 모서리를 잡습니다 (최단 3수)',
+    '３が置きました（角を止めなかった場合のサンプル）':'3을 두었습니다 (모서리를 막지 않은 경우의 예)',
+    '４が角を取りました！対角線に駒が並ぶと角が取れます':'4가 모서리를 잡았습니다! 대각선으로 말이 늘어서면 모서리를 잡습니다',
+    '対角線への配置は角を狙う一つの有力な戦術です':'대각선 배치는 모서리를 노리는 유력한 전술입니다',
+    '【角の取り方②外周】外周に自分の2色を並べて角を取ります（最短5手）':'【모서리 잡기②외곽】외곽에 자신의 두 색을 늘어놓아 모서리를 잡습니다 (최단 5수)',
+    '１が外周へ！２を横挟みしました':'1이 외곽으로! 2를 가로로 끼웠습니다',
+    '３も外周へ！１と３が右端に並びました':'3도 외곽으로! 1과 3이 오른쪽 끝에 늘어섰습니다',
+    '矢印を見て！１が角を取りにいきます':'화살표를 보세요! 1이 모서리를 잡으러 갑니다',
+    '１が角を取りました！外周に１と３を並べると角が取れます':'1이 모서리를 잡았습니다! 외곽에 1과 3을 늘어놓으면 모서리를 잡습니다',
+    '２（後手）の勝ち！28個':'2(후공)의 승리! 28개',
+    '先手の合計は52個でも、１色では27個。２の28個に負けます。勝敗は4色の中で1色の最多で決まります。':'선공의 합계는 52개라도 한 색으로는 27개. 2의 28개에 집니다. 승패는 네 색 중 한 색의 최다로 정해집니다.',
+    '【強制アウト】先手が圧倒的優勢。でも最後の1手が…':'【강제 아웃】선공이 압도적 우세. 하지만 마지막 한 수가…',
+    '１の番。圧倒的優勢！でも置けるマスは1つだけ':'1의 차례. 압도적 우세! 하지만 둘 수 있는 칸은 하나뿐',
+    'そこに置くと自分の３が0個に！相手を0にするのはOKだが、自分は即負けです':'거기에 두면 자신의 3이 0개로! 상대를 0으로 만드는 건 OK지만 자신은 즉시 패배입니다',
+    '置ける手がここしかなくても、３が0個になれば…強制アウト！即負けです':'둘 곳이 여기뿐이어도 3이 0개가 되면… 강제 아웃! 즉시 패배입니다',
+    '１が置きました。３が0個に。強制アウト！圧倒的優勢だったのに先手の負け！':'1이 두었습니다. 3이 0개로. 강제 아웃! 압도적 우세였는데 선공의 패배!',
+    '相手を0にするのはOK。でも自分の駒を0にするのは強制アウト＝即負けです。終盤は特に注意！':'상대를 0으로 만드는 건 OK. 하지만 자신의 말을 0으로 만들면 강제 아웃=즉시 패배. 종반에는 특히 주의!',
+    '以上がKATUBE CUBEのルールです。対戦モードを選んでゲームを始めましょう':'이상이 KATUBE CUBE의 규칙입니다. 대전 모드를 골라 게임을 시작합시다',
+    '【AIと対戦】コンピュータと一人で対戦します。腕試しにどうぞ':'【AI와 대전】컴퓨터와 혼자 대전합니다. 실력을 시험해 보세요',
+    '【2人で対戦】同じ画面で2人が向かい合って対戦します':'【2인 대전】같은 화면에서 두 사람이 마주 보고 대전합니다',
+    '【リラックスモード】AIは先に角を取りません。道しるべ付きでのんびり楽しめます':'【릴랙스 모드】AI는 먼저 모서리를 잡지 않습니다. 길잡이와 함께 느긋하게 즐기세요'
+  },
+  zh: {
+    'KATSUBE CUBEは4色のボードゲームです。':'KATSUBE CUBE 是一款四色棋盘游戏。',
+    '先手は1と3、後手は2と4。１人が2つの駒を持ちます。':'先手是1和3，后手是2和4。每人持有两枚棋子。',
+    '勝者は4色の中で最も多い1色を持つ者。2つの合計ではありません。':'胜者是四色中单色最多的人，不是两色合计。',
+    '１は必ず中央にあります。':'1必定位于中央。',
+    '2はこの4マスのいずれかに置きます':'2放在这四格中的任意一格',
+    '2が置かれました':'已放下2',
+    '３はこのマスのいずれかに置きます':'3放在这些格中的任意一格',
+    '３が置かれました':'已放下3',
+    '４が2×2を完成させます':'4完成2×2方块',
+    '2×2が完成！ここから挟んで陣地を広げます':'2×2完成！从这里开始夹击扩大领地',
+    '１が２を横挟みしました。２が0個になりました！':'1横向夹住2，2变成0个！',
+    '２は0にされたので外周を除いて２個置けます。盤上の駒の隣ならどこでも置けます。':'2被清零，可在除最外圈外放置2个。只要紧邻盘上的棋子即可。',
+    '２が2個置きました。密集の中に配置。次の番で挟みやすくなります':'2放了2个，置于密集处，下一手更易夹击',
+    '３が置きました':'3已放下',
+    '４が置きました':'4已放下',
+    '【例２】今度は１が４を斜め挟みで0にします。相手を0にするのはOK':'【例2】这次1斜向夹住4使其归零。把对手清零是允许的',
+    '１が４を斜め挟みしました。４が0個になりました！':'1斜向夹住4，4变成0个！',
+    '２が置きました':'2已放下',
+    '４は0にされました！外周を除いて盤上の駒の隣に２個置けます。':'4被清零！可在除最外圈外、紧邻盘上棋子处放置2个。',
+    '４が2個置きました。ゲームが続きます':'4放了2个，游戏继续',
+    '【角の取り方①対角線】駒を対角線上に並べて角を取ります（最短3手）':'【夺角法①对角线】把棋子排成对角线来夺角（最短3手）',
+    '３が置きました（角を止めなかった場合のサンプル）':'3已放下（未阻止夺角的示例）',
+    '４が角を取りました！対角線に駒が並ぶと角が取れます':'4夺得角！棋子排成对角线就能夺角',
+    '対角線への配置は角を狙う一つの有力な戦術です':'对角线布局是夺角的一种有力战术',
+    '【角の取り方②外周】外周に自分の2色を並べて角を取ります（最短5手）':'【夺角法②外圈】在外圈排列自己的两种颜色来夺角（最短5手）',
+    '１が外周へ！２を横挟みしました':'1走向外圈！横向夹住2',
+    '３も外周へ！１と３が右端に並びました':'3也走向外圈！1和3排在了右边缘',
+    '矢印を見て！１が角を取りにいきます':'看箭头！1要去夺角了',
+    '１が角を取りました！外周に１と３を並べると角が取れます':'1夺得角！把1和3排在外圈就能夺角',
+    '２（後手）の勝ち！28個':'2（后手）获胜！28个',
+    '先手の合計は52個でも、１色では27個。２の28個に負けます。勝敗は4色の中で1色の最多で決まります。':'先手合计52个，但单色只有27个，输给2的28个。胜负由四色中单色最多决定。',
+    '【強制アウト】先手が圧倒的優勢。でも最後の1手が…':'【强制出局】先手压倒性优势，但最后一手…',
+    '１の番。圧倒的優勢！でも置けるマスは1つだけ':'轮到1。压倒性优势！但只剩一格可下',
+    'そこに置くと自分の３が0個に！相手を0にするのはOKだが、自分は即負けです':'下在那里会让自己的3归零！把对手清零可以，但把自己清零即判负',
+    '置ける手がここしかなくても、３が0個になれば…強制アウト！即負けです':'即使只剩这一手，只要3归零…就强制出局！即判负',
+    '１が置きました。３が0個に。強制アウト！圧倒的優勢だったのに先手の負け！':'1已放下，3归零。强制出局！明明压倒性优势，先手却败北！',
+    '相手を0にするのはOK。でも自分の駒を0にするのは強制アウト＝即負けです。終盤は特に注意！':'把对手清零可以，但把自己的棋子清零就是强制出局=即判负。残局尤其要小心！',
+    '以上がKATUBE CUBEのルールです。対戦モードを選んでゲームを始めましょう':'以上就是KATUBE CUBE的规则。选择对战模式开始游戏吧',
+    '【AIと対戦】コンピュータと一人で対戦します。腕試しにどうぞ':'【对战AI】独自与电脑对战，来试试身手',
+    '【2人で対戦】同じ画面で2人が向かい合って対戦します':'【双人对战】两人在同一屏幕上面对面对战',
+    '【リラックスモード】AIは先に角を取りません。道しるべ付きでのんびり楽しめます':'【休闲模式】AI不会先夺角，带提示，可悠闲游玩'
+  },
+  tw: {
+    'KATSUBE CUBEは4色のボードゲームです。':'KATSUBE CUBE 是一款四色棋盤遊戲。',
+    '先手は1と3、後手は2と4。１人が2つの駒を持ちます。':'先手是1和3，後手是2和4。每人持有兩枚棋子。',
+    '勝者は4色の中で最も多い1色を持つ者。2つの合計ではありません。':'勝者是四色中單色最多的人，不是兩色合計。',
+    '１は必ず中央にあります。':'1必定位於中央。',
+    '2はこの4マスのいずれかに置きます':'2放在這四格中的任意一格',
+    '2が置かれました':'已放下2',
+    '３はこのマスのいずれかに置きます':'3放在這些格中的任意一格',
+    '３が置かれました':'已放下3',
+    '４が2×2を完成させます':'4完成2×2方塊',
+    '2×2が完成！ここから挟んで陣地を広げます':'2×2完成！從這裡開始夾擊擴大領地',
+    '１が２を横挟みしました。２が0個になりました！':'1橫向夾住2，2變成0個！',
+    '２は0にされたので外周を除いて２個置けます。盤上の駒の隣ならどこでも置けます。':'2被清零，可在除最外圈外放置2個。只要緊鄰盤上的棋子即可。',
+    '２が2個置きました。密集の中に配置。次の番で挟みやすくなります':'2放了2個，置於密集處，下一手更易夾擊',
+    '３が置きました':'3已放下',
+    '４が置きました':'4已放下',
+    '【例２】今度は１が４を斜め挟みで0にします。相手を0にするのはOK':'【例2】這次1斜向夾住4使其歸零。把對手清零是允許的',
+    '１が４を斜め挟みしました。４が0個になりました！':'1斜向夾住4，4變成0個！',
+    '２が置きました':'2已放下',
+    '４は0にされました！外周を除いて盤上の駒の隣に２個置けます。':'4被清零！可在除最外圈外、緊鄰盤上棋子處放置2個。',
+    '４が2個置きました。ゲームが続きます':'4放了2個，遊戲繼續',
+    '【角の取り方①対角線】駒を対角線上に並べて角を取ります（最短3手）':'【奪角法①對角線】把棋子排成對角線來奪角（最短3手）',
+    '３が置きました（角を止めなかった場合のサンプル）':'3已放下（未阻止奪角的示例）',
+    '４が角を取りました！対角線に駒が並ぶと角が取れます':'4奪得角！棋子排成對角線就能奪角',
+    '対角線への配置は角を狙う一つの有力な戦術です':'對角線佈局是奪角的一種有力戰術',
+    '【角の取り方②外周】外周に自分の2色を並べて角を取ります（最短5手）':'【奪角法②外圈】在外圈排列自己的兩種顏色來奪角（最短5手）',
+    '１が外周へ！２を横挟みしました':'1走向外圈！橫向夾住2',
+    '３も外周へ！１と３が右端に並びました':'3也走向外圈！1和3排在了右邊緣',
+    '矢印を見て！１が角を取りにいきます':'看箭頭！1要去奪角了',
+    '１が角を取りました！外周に１と３を並べると角が取れます':'1奪得角！把1和3排在外圈就能奪角',
+    '２（後手）の勝ち！28個':'2（後手）獲勝！28個',
+    '先手の合計は52個でも、１色では27個。２の28個に負けます。勝敗は4色の中で1色の最多で決まります。':'先手合計52個，但單色只有27個，輸給2的28個。勝負由四色中單色最多決定。',
+    '【強制アウト】先手が圧倒的優勢。でも最後の1手が…':'【強制出局】先手壓倒性優勢，但最後一手…',
+    '１の番。圧倒的優勢！でも置けるマスは1つだけ':'輪到1。壓倒性優勢！但只剩一格可下',
+    'そこに置くと自分の３が0個に！相手を0にするのはOKだが、自分は即負けです':'下在那裡會讓自己的3歸零！把對手清零可以，但把自己清零即判負',
+    '置ける手がここしかなくても、３が0個になれば…強制アウト！即負けです':'即使只剩這一手，只要3歸零…就強制出局！即判負',
+    '１が置きました。３が0個に。強制アウト！圧倒的優勢だったのに先手の負け！':'1已放下，3歸零。強制出局！明明壓倒性優勢，先手卻敗北！',
+    '相手を0にするのはOK。でも自分の駒を0にするのは強制アウト＝即負けです。終盤は特に注意！':'把對手清零可以，但把自己的棋子清零就是強制出局=即判負。殘局尤其要小心！',
+    '以上がKATUBE CUBEのルールです。対戦モードを選んでゲームを始めましょう':'以上就是KATUBE CUBE的規則。選擇對戰模式開始遊戲吧',
+    '【AIと対戦】コンピュータと一人で対戦します。腕試しにどうぞ':'【對戰AI】獨自與電腦對戰，來試試身手',
+    '【2人で対戦】同じ画面で2人が向かい合って対戦します':'【雙人對戰】兩人在同一螢幕上面對面對戰',
+    '【リラックスモード】AIは先に角を取りません。道しるべ付きでのんびり楽しめます':'【休閒模式】AI不會先奪角，帶提示，可悠閒遊玩'
+  },
+  es: {
+    'KATSUBE CUBEは4色のボードゲームです。':'KATSUBE CUBE es un juego de tablero de 4 colores.',
+    '先手は1と3、後手は2と4。１人が2つの駒を持ちます。':'El 1º juega 1 y 3; el 2º juega 2 y 4. Cada persona tiene dos piezas.',
+    '勝者は4色の中で最も多い1色を持つ者。2つの合計ではありません。':'Gana quien tenga más piezas de un solo color entre los cuatro. No es la suma de dos colores.',
+    '１は必ず中央にあります。':'El 1 siempre está en el centro.',
+    '2はこの4マスのいずれかに置きます':'Coloca el 2 en una de estas cuatro casillas',
+    '2が置かれました':'Se colocó el 2',
+    '３はこのマスのいずれかに置きます':'Coloca el 3 en una de estas casillas',
+    '３が置かれました':'Se colocó el 3',
+    '４が2×2を完成させます':'El 4 completa el 2×2',
+    '2×2が完成！ここから挟んで陣地を広げます':'¡2×2 completado! Desde aquí se atrapa para ampliar el territorio',
+    '１が２を横挟みしました。２が0個になりました！':'¡El 1 atrapó al 2 en horizontal. El 2 quedó en 0!',
+    '２は0にされたので外周を除いて２個置けます。盤上の駒の隣ならどこでも置けます。':'Como el 2 quedó en 0, puede colocar 2 piezas salvo en el borde exterior. Vale junto a cualquier pieza del tablero.',
+    '２が2個置きました。密集の中に配置。次の番で挟みやすくなります':'El 2 colocó 2 piezas en la zona densa. Será más fácil atrapar en el próximo turno',
+    '３が置きました':'El 3 colocó',
+    '４が置きました':'El 4 colocó',
+    '【例２】今度は１が４を斜め挟みで0にします。相手を0にするのはOK':'【Ej. 2】Ahora el 1 atrapa al 4 en diagonal y lo deja en 0. Dejar al rival en 0 está permitido',
+    '１が４を斜め挟みしました。４が0個になりました！':'¡El 1 atrapó al 4 en diagonal. El 4 quedó en 0!',
+    '２が置きました':'El 2 colocó',
+    '４は0にされました！外周を除いて盤上の駒の隣に２個置けます。':'¡El 4 quedó en 0! Puede colocar 2 piezas junto a las del tablero, salvo en el borde exterior.',
+    '４が2個置きました。ゲームが続きます':'El 4 colocó 2 piezas. La partida continúa',
+    '【角の取り方①対角線】駒を対角線上に並べて角を取ります（最短3手）':'【Tomar esquina ① diagonal】Alinea tus piezas en diagonal para tomar la esquina (mínimo 3 jugadas)',
+    '３が置きました（角を止めなかった場合のサンプル）':'El 3 colocó (ejemplo de no bloquear la esquina)',
+    '４が角を取りました！対角線に駒が並ぶと角が取れます':'¡El 4 tomó la esquina! Si las piezas se alinean en diagonal, se gana la esquina',
+    '対角線への配置は角を狙う一つの有力な戦術です':'Colocar en diagonal es una táctica eficaz para apuntar a la esquina',
+    '【角の取り方②外周】外周に自分の2色を並べて角を取ります（最短5手）':'【Tomar esquina ② borde】Alinea tus dos colores en el borde para tomar la esquina (mínimo 5 jugadas)',
+    '１が外周へ！２を横挟みしました':'¡El 1 va al borde! Atrapó al 2 en horizontal',
+    '３も外周へ！１と３が右端に並びました':'¡El 3 también al borde! El 1 y el 3 quedaron alineados en el lado derecho',
+    '矢印を見て！１が角を取りにいきます':'¡Mira la flecha! El 1 va a por la esquina',
+    '１が角を取りました！外周に１と３を並べると角が取れます':'¡El 1 tomó la esquina! Alineando 1 y 3 en el borde se gana la esquina',
+    '２（後手）の勝ち！28個':'¡Gana el 2 (2º)! 28 piezas',
+    '先手の合計は52個でも、１色では27個。２の28個に負けます。勝敗は4色の中で1色の最多で決まります。':'El 1º suma 52 en total, pero solo 27 de un color. Pierde frente a los 28 del 2. El resultado lo decide el color más numeroso entre los cuatro.',
+    '【強制アウト】先手が圧倒的優勢。でも最後の1手が…':'【Fuera forzado】El 1º domina por completo. Pero la última jugada…',
+    '１の番。圧倒的優勢！でも置けるマスは1つだけ':'Turno del 1. ¡Dominio total! Pero solo queda una casilla',
+    'そこに置くと自分の３が0個に！相手を0にするのはOKだが、自分は即負けです':'¡Colocar ahí deja tu propio 3 en 0! Dejar al rival en 0 vale, pero a ti mismo es derrota inmediata',
+    '置ける手がここしかなくても、３が0個になれば…強制アウト！即負けです':'Aunque solo quede esta jugada, si el 3 llega a 0… ¡fuera forzado! Derrota inmediata',
+    '１が置きました。３が0個に。強制アウト！圧倒的優勢だったのに先手の負け！':'¡El 1 colocó. El 3 quedó en 0. Fuera forzado! ¡Dominaba por completo y aun así pierde el 1º!',
+    '相手を0にするのはOK。でも自分の駒を0にするのは強制アウト＝即負けです。終盤は特に注意！':'Dejar al rival en 0 vale. Pero dejar tus propias piezas en 0 es fuera forzado = derrota inmediata. ¡Cuidado sobre todo al final!',
+    '以上がKATUBE CUBEのルールです。対戦モードを選んでゲームを始めましょう':'Estas son las reglas de KATUBE CUBE. Elige un modo y empieza a jugar',
+    '【AIと対戦】コンピュータと一人で対戦します。腕試しにどうぞ':'【vs IA】Juega tú solo contra el ordenador. Pon a prueba tu habilidad',
+    '【2人で対戦】同じ画面で2人が向かい合って対戦します':'【2 jugadores】Dos personas juegan cara a cara en la misma pantalla',
+    '【リラックスモード】AIは先に角を取りません。道しるべ付きでのんびり楽しめます':'【Modo relax】La IA no toma las esquinas primero. Con guías, disfruta con calma'
+  },
+  fr: {
+    'KATSUBE CUBEは4色のボードゲームです。':'KATSUBE CUBE est un jeu de plateau à 4 couleurs.',
+    '先手は1と3、後手は2と4。１人が2つの駒を持ちます。':'Le 1er joue 1 et 3 ; le 2e joue 2 et 4. Chaque personne a deux pièces.',
+    '勝者は4色の中で最も多い1色を持つ者。2つの合計ではありません。':'Gagne celui qui a le plus de pièces d’une seule couleur parmi les quatre. Pas le total de deux couleurs.',
+    '１は必ず中央にあります。':'Le 1 est toujours au centre.',
+    '2はこの4マスのいずれかに置きます':'Placez le 2 sur l’une de ces quatre cases',
+    '2が置かれました':'Le 2 a été placé',
+    '３はこのマスのいずれかに置きます':'Placez le 3 sur l’une de ces cases',
+    '３が置かれました':'Le 3 a été placé',
+    '４が2×2を完成させます':'Le 4 complète le 2×2',
+    '2×2が完成！ここから挟んで陣地を広げます':'2×2 terminé ! À partir d’ici, on encadre pour étendre son territoire',
+    '１が２を横挟みしました。２が0個になりました！':'Le 1 a encadré le 2 horizontalement. Le 2 est tombé à 0 !',
+    '２は0にされたので外周を除いて２個置けます。盤上の駒の隣ならどこでも置けます。':'Le 2 étant à 0, il peut placer 2 pièces sauf sur le bord extérieur. Possible à côté de n’importe quelle pièce du plateau.',
+    '２が2個置きました。密集の中に配置。次の番で挟みやすくなります':'Le 2 a placé 2 pièces dans la zone dense. Plus facile d’encadrer au tour suivant',
+    '３が置きました':'Le 3 a placé',
+    '４が置きました':'Le 4 a placé',
+    '【例２】今度は１が４を斜め挟みで0にします。相手を0にするのはOK':'【Ex. 2】Cette fois le 1 encadre le 4 en diagonale et le met à 0. Mettre l’adversaire à 0 est permis',
+    '１が４を斜め挟みしました。４が0個になりました！':'Le 1 a encadré le 4 en diagonale. Le 4 est tombé à 0 !',
+    '２が置きました':'Le 2 a placé',
+    '４は0にされました！外周を除いて盤上の駒の隣に２個置けます。':'Le 4 est tombé à 0 ! Il peut placer 2 pièces à côté de celles du plateau, sauf sur le bord extérieur.',
+    '４が2個置きました。ゲームが続きます':'Le 4 a placé 2 pièces. La partie continue',
+    '【角の取り方①対角線】駒を対角線上に並べて角を取ります（最短3手）':'【Prendre un coin ① diagonale】Alignez vos pièces en diagonale pour prendre le coin (3 coups minimum)',
+    '３が置きました（角を止めなかった場合のサンプル）':'Le 3 a placé (exemple sans bloquer le coin)',
+    '４が角を取りました！対角線に駒が並ぶと角が取れます':'Le 4 a pris le coin ! Quand les pièces s’alignent en diagonale, on prend le coin',
+    '対角線への配置は角を狙う一つの有力な戦術です':'Le placement en diagonale est une tactique efficace pour viser le coin',
+    '【角の取り方②外周】外周に自分の2色を並べて角を取ります（最短5手）':'【Prendre un coin ② bord】Alignez vos deux couleurs sur le bord pour prendre le coin (5 coups minimum)',
+    '１が外周へ！２を横挟みしました':'Le 1 va au bord ! Il a encadré le 2 horizontalement',
+    '３も外周へ！１と３が右端に並びました':'Le 3 aussi au bord ! Le 1 et le 3 sont alignés sur le bord droit',
+    '矢印を見て！１が角を取りにいきます':'Regardez la flèche ! Le 1 va prendre le coin',
+    '１が角を取りました！外周に１と３を並べると角が取れます':'Le 1 a pris le coin ! En alignant 1 et 3 sur le bord, on prend le coin',
+    '２（後手）の勝ち！28個':'Le 2 (2e) gagne ! 28 pièces',
+    '先手の合計は52個でも、１色では27個。２の28個に負けます。勝敗は4色の中で1色の最多で決まります。':'Le 1er a 52 pièces au total, mais seulement 27 d’une couleur. Il perd face aux 28 du 2. L’issue se décide par la couleur la plus nombreuse parmi les quatre.',
+    '【強制アウト】先手が圧倒的優勢。でも最後の1手が…':'【Sortie forcée】Le 1er domine totalement. Mais le dernier coup…',
+    '１の番。圧倒的優勢！でも置けるマスは1つだけ':'Tour du 1. Domination totale ! Mais il ne reste qu’une case',
+    'そこに置くと自分の３が0個に！相手を0にするのはOKだが、自分は即負けです':'Y placer met votre propre 3 à 0 ! Mettre l’adversaire à 0 est permis, mais soi-même, c’est la défaite immédiate',
+    '置ける手がここしかなくても、３が0個になれば…強制アウト！即負けです':'Même s’il ne reste que ce coup, si le 3 tombe à 0… sortie forcée ! Défaite immédiate',
+    '１が置きました。３が0個に。強制アウト！圧倒的優勢だったのに先手の負け！':'Le 1 a placé. Le 3 est à 0. Sortie forcée ! Il dominait totalement et pourtant le 1er perd !',
+    '相手を0にするのはOK。でも自分の駒を0にするのは強制アウト＝即負けです。終盤は特に注意！':'Mettre l’adversaire à 0 est permis. Mais mettre ses propres pièces à 0 est une sortie forcée = défaite immédiate. Prudence surtout en fin de partie !',
+    '以上がKATUBE CUBEのルールです。対戦モードを選んでゲームを始めましょう':'Voilà les règles de KATUBE CUBE. Choisissez un mode et commencez la partie',
+    '【AIと対戦】コンピュータと一人で対戦します。腕試しにどうぞ':'【vs IA】Jouez seul contre l’ordinateur. Testez votre niveau',
+    '【2人で対戦】同じ画面で2人が向かい合って対戦します':'【2 joueurs】Deux personnes s’affrontent face à face sur le même écran',
+    '【リラックスモード】AIは先に角を取りません。道しるべ付きでのんびり楽しめます':'【Mode détente】L’IA ne prend pas les coins en premier. Avec des repères, profitez tranquillement'
+  },
+  hi: {
+    'KATSUBE CUBEは4色のボードゲームです。':'KATSUBE CUBE एक 4-रंगों वाला बोर्ड गेम है।',
+    '先手は1と3、後手は2と4。１人が2つの駒を持ちます。':'पहला खिलाड़ी 1 और 3, दूसरा 2 और 4 खेलता है। हर व्यक्ति के पास दो मोहरे होते हैं।',
+    '勝者は4色の中で最も多い1色を持つ者。2つの合計ではありません。':'जीतता वही है जिसके पास चारों में से किसी एक रंग के सबसे ज़्यादा मोहरे हों। दो रंगों का जोड़ नहीं।',
+    '１は必ず中央にあります。':'1 हमेशा केंद्र में होता है।',
+    '2はこの4マスのいずれかに置きます':'2 को इन चार खानों में से किसी एक पर रखें',
+    '2が置かれました':'2 रख दिया गया',
+    '３はこのマスのいずれかに置きます':'3 को इन खानों में से किसी एक पर रखें',
+    '３が置かれました':'3 रख दिया गया',
+    '４が2×2を完成させます':'4 से 2×2 पूरा होता है',
+    '2×2が完成！ここから挟んで陣地を広げます':'2×2 पूरा! यहाँ से घेरकर अपना क्षेत्र बढ़ाते हैं',
+    '１が２を横挟みしました。２が0個になりました！':'1 ने 2 को आड़े में घेरा। 2 शून्य हो गया!',
+    '２は0にされたので外周を除いて２個置けます。盤上の駒の隣ならどこでも置けます。':'2 शून्य हो गया, इसलिए बाहरी किनारे को छोड़कर 2 मोहरे रख सकता है। बोर्ड के किसी भी मोहरे के बगल में रख सकते हैं।',
+    '２が2個置きました。密集の中に配置。次の番で挟みやすくなります':'2 ने घनी जगह में 2 मोहरे रखे। अगली बारी में घेरना आसान होगा',
+    '３が置きました':'3 ने रखा',
+    '４が置きました':'4 ने रखा',
+    '【例２】今度は１が４を斜め挟みで0にします。相手を0にするのはOK':'【उदा. 2】अब 1, 4 को तिरछे घेरकर शून्य करता है। प्रतिद्वंद्वी को शून्य करना ठीक है',
+    '１が４を斜め挟みしました。４が0個になりました！':'1 ने 4 को तिरछे घेरा। 4 शून्य हो गया!',
+    '２が置きました':'2 ने रखा',
+    '４は0にされました！外周を除いて盤上の駒の隣に２個置けます。':'4 शून्य हो गया! बाहरी किनारे को छोड़कर बोर्ड के मोहरों के बगल में 2 मोहरे रख सकता है।',
+    '４が2個置きました。ゲームが続きます':'4 ने 2 मोहरे रखे। खेल जारी है',
+    '【角の取り方①対角線】駒を対角線上に並べて角を取ります（最短3手）':'【कोना लेना ① विकर्ण】मोहरों को विकर्ण में सजाकर कोना लें (कम से कम 3 चालें)',
+    '３が置きました（角を止めなかった場合のサンプル）':'3 ने रखा (कोना न रोकने का उदाहरण)',
+    '４が角を取りました！対角線に駒が並ぶと角が取れます':'4 ने कोना ले लिया! मोहरे विकर्ण में सज जाएँ तो कोना मिल जाता है',
+    '対角線への配置は角を狙う一つの有力な戦術です':'विकर्ण में रखना कोने को निशाना बनाने की एक कारगर रणनीति है',
+    '【角の取り方②外周】外周に自分の2色を並べて角を取ります（最短5手）':'【कोना लेना ② किनारा】अपने दो रंग किनारे पर सजाकर कोना लें (कम से कम 5 चालें)',
+    '１が外周へ！２を横挟みしました':'1 किनारे की ओर! 2 को आड़े में घेरा',
+    '３も外周へ！１と３が右端に並びました':'3 भी किनारे की ओर! 1 और 3 दाएँ किनारे पर सज गए',
+    '矢印を見て！１が角を取りにいきます':'तीर देखें! 1 कोना लेने जा रहा है',
+    '１が角を取りました！外周に１と３を並べると角が取れます':'1 ने कोना ले लिया! किनारे पर 1 और 3 सजाने से कोना मिल जाता है',
+    '２（後手）の勝ち！28個':'2 (दूसरा) जीता! 28 मोहरे',
+    '先手の合計は52個でも、１色では27個。２の28個に負けます。勝敗は4色の中で1色の最多で決まります。':'पहले खिलाड़ी के कुल 52, पर एक रंग में सिर्फ़ 27। 2 के 28 से हार जाता है। नतीजा चारों में सबसे ज़्यादा वाले एक रंग से तय होता है।',
+    '【強制アウト】先手が圧倒的優勢。でも最後の1手が…':'【जबरन आउट】पहला खिलाड़ी पूरी तरह हावी। पर आख़िरी चाल…',
+    '１の番。圧倒的優勢！でも置けるマスは1つだけ':'1 की बारी। पूरा दबदबा! पर रखने को सिर्फ़ एक खाना बचा',
+    'そこに置くと自分の３が0個に！相手を0にするのはOKだが、自分は即負けです':'वहाँ रखने पर आपका अपना 3 शून्य हो जाएगा! प्रतिद्वंद्वी को शून्य करना ठीक है, पर ख़ुद को करना तुरंत हार है',
+    '置ける手がここしかなくても、３が0個になれば…強制アウト！即負けです':'भले ही यही एकमात्र चाल बची हो, अगर 3 शून्य हुआ तो… जबरन आउट! तुरंत हार',
+    '１が置きました。３が0個に。強制アウト！圧倒的優勢だったのに先手の負け！':'1 ने रखा। 3 शून्य हो गया। जबरन आउट! पूरा दबदबा होने पर भी पहला खिलाड़ी हार गया!',
+    '相手を0にするのはOK。でも自分の駒を0にするのは強制アウト＝即負けです。終盤は特に注意！':'प्रतिद्वंद्वी को शून्य करना ठीक है। पर अपने मोहरों को शून्य करना जबरन आउट = तुरंत हार। अंत में ख़ासकर सावधान!',
+    '以上がKATUBE CUBEのルールです。対戦モードを選んでゲームを始めましょう':'ये थे KATUBE CUBE के नियम। मोड चुनकर खेल शुरू करें',
+    '【AIと対戦】コンピュータと一人で対戦します。腕試しにどうぞ':'【vs AI】कंप्यूटर के ख़िलाफ़ अकेले खेलें। अपनी क्षमता आज़माएँ',
+    '【2人で対戦】同じ画面で2人が向かい合って対戦します':'【2 खिलाड़ी】दो लोग एक ही स्क्रीन पर आमने-सामने खेलते हैं',
+    '【リラックスモード】AIは先に角を取りません。道しるべ付きでのんびり楽しめます':'【आराम मोड】AI पहले कोने नहीं लेता। संकेतों के साथ इत्मीनान से आनंद लें'
+  }
+};
+
+// ===== ゲーム中メッセージの多言語辞書（テンプレ対応）=====
+// キーで参照。{name}/{n}/{w}/{l}/{c}/{who}/{act} は tMsg の vars で差し替え。
+// ja_slow があればゆっくりモードのみ使用。未収録言語は en→ja フォールバック。
+const MSG = {
+  // --- 初期配置 ---
+  setup2:{ja:'2番(後手)：中央の上下左右4マスのいずれかに置いてください',ja_slow:'2ばん（ごて）：まんなかの　うえ・した・ひだり・みぎの　4つのマスの　どこかに　おいてください',en:'Player 2: Place on one of the 4 squares around center.',zh:'2号(后手)：放在中央上下左右四格中的一格。',tw:'2號(後手)：放在中央上下左右四格中的一格。',ko:'2번(후공): 중앙의 상하좌우 네 칸 중 하나에 두세요.',hi:'खिलाड़ी 2: केंद्र के ऊपर/नीचे/बाएँ/दाएँ चार खानों में से एक पर रखें।',es:'Jugador 2: Coloca en una de las 4 casillas alrededor del centro.',fr:'Joueur 2 : Placez sur l’une des 4 cases autour du centre.'},
+  setup3:{ja:'3番(先手)：2×2を作れるマスに置いてください',ja_slow:'3ばん（せんて）：2×2を　つくれる　マスに　おいてください',en:'Player 3: Place where you can form a 2×2 square.',zh:'3号(先手)：放在能组成2×2的格子上。',tw:'3號(先手)：放在能組成2×2的格子上。',ko:'3번(선공): 2×2를 만들 수 있는 칸에 두세요.',hi:'खिलाड़ी 3: जहाँ 2×2 बन सके वहाँ रखें।',es:'Jugador 3: Coloca donde puedas formar un cuadrado 2×2.',fr:'Joueur 3 : Placez où vous pouvez former un carré 2×2.'},
+  setup3none:{ja:'3番を置けるマスがありません。やり直します',ja_slow:'3ばんを　おける　マスが　ありません。やりなおします',en:'No valid square for Player 3. Resetting...',zh:'3号没有可放置的格子，重新开始…',tw:'3號沒有可放置的格子，重新開始…',ko:'3번을 둘 칸이 없습니다. 다시 시작합니다…',hi:'खिलाड़ी 3 के लिए कोई मान्य खाना नहीं। फिर से शुरू…',es:'No hay casilla válida para el Jugador 3. Reiniciando…',fr:'Aucune case valide pour le Joueur 3. Réinitialisation…'},
+  setup4:{ja:'4番(後手)が2×2を完成させます…',ja_slow:'4ばん（ごて）が　2×2を　かんせいさせます…',en:'Player 4 completes the 2×2 square...',zh:'4号(后手)来完成2×2方块…',tw:'4號(後手)來完成2×2方塊…',ko:'4번(후공)이 2×2를 완성합니다…',hi:'खिलाड़ी 4, 2×2 पूरा करता है…',es:'El Jugador 4 completa el cuadrado 2×2…',fr:'Le Joueur 4 complète le carré 2×2…'},
+  setup4none:{ja:'4番を置けるマスがありません。やり直します',ja_slow:'4ばんを　おける　マスが　ありません。やりなおします',en:'No valid square for Player 4. Resetting...',zh:'4号没有可放置的格子，重新开始…',tw:'4號沒有可放置的格子，重新開始…',ko:'4번을 둘 칸이 없습니다. 다시 시작합니다…',hi:'खिलाड़ी 4 के लिए कोई मान्य खाना नहीं। फिर से शुरू…',es:'No hay casilla válida para el Jugador 4. Reiniciando…',fr:'Aucune case valide pour le Joueur 4. Réinitialisation…'},
+  setupDone:{ja:'2×2の正方形が完成！ゲームスタート',ja_slow:'2×2の　しかくが　かんせい！　ゲームスタート',en:'2×2 complete! Game starts!',zh:'2×2完成！游戏开始！',tw:'2×2完成！遊戲開始！',ko:'2×2 완성! 게임 시작!',hi:'2×2 पूरा! खेल शुरू!',es:'¡2×2 completo! ¡Empieza el juego!',fr:'2×2 terminé ! La partie commence !'},
+  parGameStart:{ja:'ゲームスタート！',en:'Game Start!',zh:'游戏开始！',tw:'遊戲開始！',ko:'게임 시작!',hi:'खेल शुरू!',es:'¡Empieza el juego!',fr:'La partie commence !'},
+  // --- 手番・着手 ---
+  tapToPlace:{ja:'{name}：置くマスをタップしてください',ja_slow:'{name}：おく　マスを　タップしてください',en:'{name}: Tap a square to place.',zh:'{name}：点击要落子的格子。',tw:'{name}：點擊要落子的格子。',ko:'{name}: 둘 칸을 탭하세요.',hi:'{name}: रखने हेतु खाना टैप करें।',es:'{name}: Toca una casilla para colocar.',fr:'{name} : Touchez une case pour placer.'},
+  noMovesPass:{ja:'{name} は置ける場所がないためパスします',ja_slow:'{name}は　おける　ばしょが　ないため　パスします',en:'{name}: No moves available. Pass.',zh:'{name}：无处可下，跳过。',tw:'{name}：無處可下，跳過。',ko:'{name}: 둘 곳이 없어 패스합니다.',hi:'{name}: कोई चाल नहीं, पास।',es:'{name}: Sin jugadas. Pasa.',fr:'{name} : Aucun coup. Passe.'},
+  thinking:{ja:'{name} が考えています…',ja_slow:'{name}が　かんがえています…',en:'{name} is thinking...',zh:'{name} 正在思考…',tw:'{name} 正在思考…',ko:'{name} 생각 중…',hi:'{name} सोच रहा है…',es:'{name} está pensando…',fr:'{name} réfléchit…'},
+  learnedMove:{ja:'{name} がお手本の手を打ちました！',ja_slow:'{name}が　おてほんの　てを　うちました！',en:'{name} plays a learned move!',zh:'{name} 走出学到的一手！',tw:'{name} 走出學到的一手！',ko:'{name}이(가) 배운 수를 둡니다!',hi:'{name} ने सीखी हुई चाल चली!',es:'¡{name} juega un movimiento aprendido!',fr:'{name} joue un coup appris !'},
+  placed:{ja:'{name} が置きました',ja_slow:'{name}が　おきました',en:'{name} placed.',zh:'{name} 已落子。',tw:'{name} 已落子。',ko:'{name}이(가) 두었습니다.',hi:'{name} ने रखा।',es:'{name} colocó.',fr:'{name} a placé.'},
+  cannotPlace:{ja:'そこには置けません',en:'Cannot place there.',zh:'这里不能放。',tw:'這裡不能放。',ko:'거기에는 둘 수 없습니다.',hi:'यहाँ नहीं रख सकते।',es:'No puedes colocar ahí.',fr:'Impossible de placer ici.'},
+  parOutCannot:{ja:'そこはアウトになります',en:'Cannot place — Out!',zh:'放这里会出局！',tw:'放這裡會出局！',ko:'거기에 두면 아웃!',hi:'वहाँ रखना = आउट!',es:'¡Ahí no — quedarías eliminado!',fr:'Là, c’est une sortie !'},
+  selfOutChoose:{ja:'強制アウト！相手を0にするのはOKですが、自分の駒が0になると即負けです。別のマスを選んでください。',ja_slow:'きょうせい アウト！あいての こまを 0こに するのは OK。でも じぶんの こまが 0こに なると そくまけです。べつの マスを！',en:'Self-Out! Wiping opponents is OK — but wiping your own pieces means instant loss. Choose another square.',zh:'强制出局！把对手清零可以，但自己的棋子归零即判负。请另选一格。',tw:'強制出局！把對手清零可以，但自己的棋子歸零即判負。請另選一格。',ko:'강제 아웃! 상대를 0으로 만드는 건 OK지만, 자기 말이 0이 되면 즉시 패배. 다른 칸을 고르세요.',hi:'जबरन आउट! प्रतिद्वंद्वी को शून्य करना ठीक है, पर अपने मोहरे शून्य हुए तो तुरंत हार। दूसरा खाना चुनें।',es:'¡Fuera forzado! Eliminar al rival vale, pero dejar tus piezas en 0 es derrota inmediata. Elige otra casilla.',fr:'Sortie forcée ! Éliminer l’adversaire est permis, mais réduire vos pièces à 0 = défaite immédiate. Choisissez une autre case.'},
+  forcedOutFill:{ja:'マスが埋まり、自分の色が0個に…強制アウト！',ja_slow:'マスが うまり、じぶんの いろが 0こに…きょうせい アウト！',en:'Forced Out! You erased your own color.',zh:'格子填满，自己的颜色归零…强制出局！',tw:'格子填滿，自己的顏色歸零…強制出局！',ko:'칸이 다 차고 자기 색이 0이 되어… 강제 아웃!',hi:'सभी खाने भर गए और आपका रंग शून्य हो गया… जबरन आउट!',es:'¡Fuera forzado! Las casillas se llenaron y tu color quedó en 0.',fr:'Sortie forcée ! Les cases sont pleines et votre couleur est à 0.'},
+  // --- AI戦術（角・外周）---
+  takesCorner:{ja:'{name} が角を取りました！',ja_slow:'{name}が　かどを　とりました！',en:'{name} takes a corner!',zh:'{name} 夺得一个角！',tw:'{name} 奪得一個角！',ko:'{name}이(가) 모서리를 잡았습니다!',hi:'{name} ने एक कोना ले लिया!',es:'¡{name} toma una esquina!',fr:'{name} prend un coin !'},
+  consolidatesCorner:{ja:'{name} が角を固めました！',ja_slow:'{name}が　かどを　かためました！',en:'{name} consolidates corner!',zh:'{name} 巩固了角！',tw:'{name} 鞏固了角！',ko:'{name}이(가) 모서리를 굳혔습니다!',hi:'{name} ने कोना मज़बूत किया!',es:'¡{name} consolida la esquina!',fr:'{name} consolide le coin !'},
+  securesEdge:{ja:'{name} が外周を確保しました！',ja_slow:'{name}が　そとわくを　かくほしました！',en:'{name} secures edge!',zh:'{name} 守住了外圈！',tw:'{name} 守住了外圈！',ko:'{name}이(가) 외곽을 확보했습니다!',hi:'{name} ने किनारा सुरक्षित किया!',es:'¡{name} asegura el borde!',fr:'{name} sécurise le bord !'},
+  blocksCorner:{ja:'{name} が角を防ぎました！',ja_slow:'{name}が　かどを　ふせぎました！',en:'{name} blocks corner!',zh:'{name} 阻止了夺角！',tw:'{name} 阻止了奪角！',ko:'{name}이(가) 모서리를 막았습니다!',hi:'{name} ने कोना रोका!',es:'¡{name} bloquea la esquina!',fr:'{name} bloque le coin !'},
+  clearsPath:{ja:'{name} が経路を開きました！',ja_slow:'{name}が　けいろを　ひらきました！',en:'{name} clears the path!',zh:'{name} 打通了路径！',tw:'{name} 打通了路徑！',ko:'{name}이(가) 경로를 열었습니다!',hi:'{name} ने रास्ता खोला!',es:'¡{name} despeja el camino!',fr:'{name} dégage le chemin !'},
+  disruptsEdge:{ja:'{name} が外周を崩しました！',ja_slow:'{name}が　そとわくを　くずしました！',en:'{name} disrupts edge!',zh:'{name} 破坏了外圈！',tw:'{name} 破壞了外圈！',ko:'{name}이(가) 외곽을 무너뜨렸습니다!',hi:'{name} ने किनारा बिगाड़ा!',es:'¡{name} rompe el borde!',fr:'{name} casse le bord !'},
+  setsAmbush:{ja:'{name} が待ち伏せしました！',ja_slow:'{name}が　まちぶせしました！',en:'{name} sets an ambush!',zh:'{name} 设下埋伏！',tw:'{name} 設下埋伏！',ko:'{name}이(가) 매복했습니다!',hi:'{name} ने घात लगाई!',es:'¡{name} tiende una emboscada!',fr:'{name} tend une embuscade !'},
+  reasonAct:{ja:'{name} が{act}！',ja_slow:'{name}が　{act}！',en:'{name} {act}!',zh:'{name} {act}！',tw:'{name} {act}！',ko:'{name}이(가) {act}!',hi:'{name}: {act}!',es:'¡{name} {act}!',fr:'{name} {act} !'},
+  // --- 復活 ---
+  noRevivePass:{ja:'{name} は復活できる場所がないためパスします',ja_slow:'{name}は　ふっかつできる　ばしょが　ないため　パスします',en:'{name}: No space to revive. Skip.',zh:'{name}：无处可复活，跳过。',tw:'{name}：無處可復活，跳過。',ko:'{name}: 부활할 곳이 없어 패스.',hi:'{name}: पुनर्जीवन हेतु जगह नहीं, पास।',es:'{name}: Sin sitio para revivir. Salta.',fr:'{name} : Pas de place pour revenir. Passe.'},
+  outRevive:{ja:'{name} アウト！2個復活できます',ja_slow:'{name}が　アウト！　2こ　おいてください',en:'{name} is Out! Place 2 pieces to revive.',zh:'{name} 出局！可放2子复活。',tw:'{name} 出局！可放2子復活。',ko:'{name} 아웃! 2개를 두어 부활할 수 있습니다.',hi:'{name} आउट! 2 मोहरे रखकर वापसी।',es:'¡{name} eliminado! Coloca 2 piezas para revivir.',fr:'{name} éliminé ! Placez 2 pièces pour revenir.'},
+  revived:{ja:'{name} が復活しました',ja_slow:'{name}が　ふっかつしました',en:'{name} revived!',zh:'{name} 复活了！',tw:'{name} 復活了！',ko:'{name}이(가) 부활했습니다!',hi:'{name} वापस आ गया!',es:'¡{name} revivió!',fr:'{name} est revenu !'},
+  tapRevive1:{ja:'{name}：復活する場所をタップ',ja_slow:'ふっかつする　マスを　タップ',en:'{name}: Tap to revive (1 of 2).',zh:'{name}：点击复活位置（第1/2个）。',tw:'{name}：點擊復活位置（第1/2個）。',ko:'{name}: 부활할 곳을 탭 (2개 중 1).',hi:'{name}: वापसी हेतु टैप (2 में से 1)।',es:'{name}: Toca para revivir (1 de 2).',fr:'{name} : Touchez pour revenir (1 sur 2).'},
+  tapRevive2:{ja:'もう1個タップしてください',ja_slow:'もう　1こ　おいてください',en:'{name}: Tap to revive (2 of 2).',zh:'{name}：再点击一个（第2/2个）。',tw:'{name}：再點擊一個（第2/2個）。',ko:'{name}: 하나 더 탭 (2개 중 2).',hi:'{name}: एक और टैप (2 में से 2)।',es:'{name}: Toca otra vez (2 de 2).',fr:'{name} : Touchez encore (2 sur 2).'},
+  reviveOccupied:{ja:'そこには置けません',en:'That square is occupied.',zh:'那个格子已被占用。',tw:'那個格子已被占用。',ko:'그 칸은 이미 차 있습니다.',hi:'वह खाना भरा हुआ है।',es:'Esa casilla está ocupada.',fr:'Cette case est occupée.'},
+  mustAdjacent:{ja:'既存の駒に隣接する内側のマスに置いてください',ja_slow:'きそんの　こまに　となりの　マスに　おいてください',en:'Must place adjacent to existing pieces (not on the edge).',zh:'必须放在紧邻已有棋子的内侧格（不能在最外圈）。',tw:'必須放在緊鄰已有棋子的內側格（不能在最外圈）。',ko:'기존 말에 인접한 안쪽 칸에 두세요(외곽 제외).',hi:'मौजूदा मोहरों से सटे भीतरी खाने पर रखें (किनारे पर नहीं)।',es:'Coloca junto a piezas existentes (no en el borde).',fr:'Placez à côté de pièces existantes (pas sur le bord).'},
+  // --- 戻す ---
+  cannotUndo:{ja:'これ以上戻せません',ja_slow:'これいじょう　もどせません',en:'Cannot undo further.',zh:'无法再悔棋。',tw:'無法再悔棋。',ko:'더 이상 무를 수 없습니다.',hi:'और पूर्ववत् नहीं कर सकते।',es:'No se puede deshacer más.',fr:'Impossible d’annuler davantage.'},
+  undone:{ja:'1手戻しました（{name}のターン）',ja_slow:'1て　もどしました（{name}の　ターン）',en:'Undone. ({name}’s turn)',zh:'已悔棋。（轮到{name}）',tw:'已悔棋。（輪到{name}）',ko:'한 수 무름. ({name} 차례)',hi:'पूर्ववत्। ({name} की बारी)',es:'Deshecho. (Turno de {name})',fr:'Annulé. (Tour de {name})'},
+  // --- ボタン ---
+  rematch:{ja:'リマッチ',en:'Rematch',zh:'再来一局',tw:'再來一局',ko:'다시 대국',hi:'पुनः मैच',es:'Revancha',fr:'Revanche'},
+  cancel:{ja:'やめる',en:'Cancel',zh:'取消',tw:'取消',ko:'취소',hi:'रद्द',es:'Cancelar',fr:'Annuler'},
+  approve:{ja:'承認？',en:'Approve?',zh:'同意？',tw:'同意？',ko:'승인?',hi:'मंज़ूर?',es:'¿Aprobar?',fr:'Approuver ?'},
+  undoBtn:{ja:'1手戻す',en:'Undo',zh:'悔棋',tw:'悔棋',ko:'무르기',hi:'पूर्ववत्',es:'Deshacer',fr:'Annuler'},
+  menuBtn:{ja:'メニューへ',en:'Menu',zh:'菜单',tw:'選單',ko:'메뉴',hi:'मेन्यू',es:'Menú',fr:'Menu'},
+  host:{ja:'主',en:'Host',zh:'房主',tw:'房主',ko:'호스트',hi:'मेज़बान',es:'Anfitrión',fr:'Hôte'},
+  guest:{ja:'ゲスト',en:'Guest',zh:'访客',tw:'訪客',ko:'게스트',hi:'अतिथि',es:'Invitado',fr:'Invité'},
+  // --- 二人対戦の承認フロー（対面）---
+  undoReq:{ja:'{who}が1手戻すを押しました。相手も承認？を押せば実行します',en:'{who} wants to undo. Other player tap Approve?',zh:'{who}请求悔棋。另一位玩家点“同意？”即执行。',tw:'{who}請求悔棋。另一位玩家點「同意？」即執行。',ko:'{who}이(가) 무르기를 요청했습니다. 상대도 승인?을 누르면 실행됩니다.',hi:'{who} ने पूर्ववत् माँगा। दूसरा खिलाड़ी “मंज़ूर?” दबाए तो लागू होगा।',es:'{who} quiere deshacer. ¿El otro jugador pulsa Aprobar?',fr:'{who} veut annuler. L’autre joueur appuie sur Approuver ?'},
+  undoCancelled:{ja:'1手戻すをキャンセルしました。',en:'Undo cancelled.',zh:'已取消悔棋。',tw:'已取消悔棋。',ko:'무르기를 취소했습니다.',hi:'पूर्ववत् रद्द।',es:'Deshacer cancelado.',fr:'Annulation annulée.'},
+  rematchReq:{ja:'{who}がリマッチを押しました。相手も承認？を押せば実行します',en:'{who} wants rematch. Other player tap Approve?',zh:'{who}请求再来一局。另一位玩家点“同意？”即执行。',tw:'{who}請求再來一局。另一位玩家點「同意？」即執行。',ko:'{who}이(가) 재대국을 요청했습니다. 상대도 승인?을 누르면 실행됩니다.',hi:'{who} ने पुनः मैच माँगा। दूसरा “मंज़ूर?” दबाए तो लागू।',es:'{who} quiere revancha. ¿El otro jugador pulsa Aprobar?',fr:'{who} veut une revanche. L’autre joueur appuie sur Approuver ?'},
+  rematchCancelled:{ja:'リマッチをキャンセルしました。',en:'Rematch cancelled.',zh:'已取消再来一局。',tw:'已取消再來一局。',ko:'재대국을 취소했습니다.',hi:'पुनः मैच रद्द।',es:'Revancha cancelada.',fr:'Revanche annulée.'},
+  menuReq:{ja:'{who}がメニューへを押しました。相手も承認？を押せば移動します',en:'{who} wants to go to menu. Other player tap Approve?',zh:'{who}请求返回菜单。另一位玩家点“同意？”即返回。',tw:'{who}請求返回選單。另一位玩家點「同意？」即返回。',ko:'{who}이(가) 메뉴로 가기를 요청했습니다. 상대도 승인?을 누르면 이동합니다.',hi:'{who} मेन्यू पर जाना चाहता है। दूसरा “मंज़ूर?” दबाए तो जाएँगे।',es:'{who} quiere ir al menú. ¿El otro jugador pulsa Aprobar?',fr:'{who} veut aller au menu. L’autre joueur appuie sur Approuver ?'},
+  menuCancelled:{ja:'メニューへの移動をキャンセルしました。',en:'Menu cancelled.',zh:'已取消返回菜单。',tw:'已取消返回選單。',ko:'메뉴 이동을 취소했습니다.',hi:'मेन्यू रद्द।',es:'Menú cancelado.',fr:'Menu annulé.'},
+  // --- 二人対戦の承認フロー（平行・短縮）---
+  reqUndo:{ja:'1手戻すが要求されました。相手も承認？を',en:'Undo requested. Other player approve?',zh:'已请求悔棋。另一位玩家同意？',tw:'已請求悔棋。另一位玩家同意？',ko:'무르기 요청됨. 상대 승인?',hi:'पूर्ववत् का अनुरोध। दूसरा मंज़ूर?',es:'Deshacer solicitado. ¿El otro aprueba?',fr:'Annulation demandée. L’autre approuve ?'},
+  reqMenu:{ja:'メニューへの移動。相手も承認？を',en:'Menu requested. Other player approve?',zh:'已请求返回菜单。另一位玩家同意？',tw:'已請求返回選單。另一位玩家同意？',ko:'메뉴 이동 요청됨. 상대 승인?',hi:'मेन्यू का अनुरोध। दूसरा मंज़ूर?',es:'Menú solicitado. ¿El otro aprueba?',fr:'Menu demandé. L’autre approuve ?'},
+  reqRematch:{ja:'リマッチ要求。相手も承認？を',en:'Rematch requested. Other player approve?',zh:'已请求再来一局。另一位玩家同意？',tw:'已請求再來一局。另一位玩家同意？',ko:'재대국 요청됨. 상대 승인?',hi:'पुनः मैच का अनुरोध। दूसरा मंज़ूर?',es:'Revancha solicitada. ¿El otro aprueba?',fr:'Revanche demandée. L’autre approuve ?'},
+  cancelled:{ja:'キャンセルしました',en:'Cancelled.',zh:'已取消。',tw:'已取消。',ko:'취소했습니다.',hi:'रद्द किया।',es:'Cancelado.',fr:'Annulé.'},
+  undoneShort:{ja:'1手戻しました',en:'Undone.',zh:'已悔棋。',tw:'已悔棋。',ko:'한 수 물렀습니다.',hi:'पूर्ववत् किया।',es:'Deshecho.',fr:'Annulé.'},
+  // --- 平行モードのチームラベル ---
+  parLabelSente:{ja:'先手 （1・3番）',en:'1st (1&3)',zh:'先手（1·3）',tw:'先手（1·3）',ko:'선공 (1·3)',hi:'पहली (1·3)',es:'1º (1·3)',fr:'1er (1·3)'},
+  parLabelGote:{ja:'後手 （2・4番）',en:'2nd (2&4)',zh:'后手（2·4）',tw:'後手（2·4）',ko:'후공 (2·4)',hi:'दूसरी (2·4)',es:'2º (2·4)',fr:'2e (2·4)'},
+  // --- 側（先手/後手）短縮 ---
+  side1:{ja:'先手',en:'1st',zh:'先手',tw:'先手',ko:'선공',hi:'पहली',es:'1º',fr:'1er'},
+  side2:{ja:'後手',en:'2nd',zh:'后手',tw:'後手',ko:'후공',hi:'दूसरी',es:'2º',fr:'2e'},
+  // --- 結果タイトル ---
+  winTitle:{ja:'{n}番（{w}）の勝ち！ {c}個',en:'{n} ({w}) wins! {c} pieces',zh:'{n}号（{w}）获胜！{c}个',tw:'{n}號（{w}）獲勝！{c}個',ko:'{n}번({w}) 승리! {c}개',hi:'{n} ({w}) जीता! {c} मोहरे',es:'¡{n} ({w}) gana! {c} piezas',fr:'{n} ({w}) gagne ! {c} pièces'},
+  drawTitle:{ja:'引き分け！',en:'Draw!',zh:'平局！',tw:'平局！',ko:'무승부!',hi:'बराबरी!',es:'¡Empate!',fr:'Égalité !'},
+  selfOutTitle:{ja:'{n}番 強制アウト！{w}の勝ち',en:'Self-Out: {n}! {w} team wins!',zh:'强制出局：{n}号！{w}获胜！',tw:'強制出局：{n}號！{w}獲勝！',ko:'강제 아웃: {n}번! {w} 승리!',hi:'जबरन आउट: {n}! {w} टीम जीती!',es:'¡Fuera forzado: {n}! ¡Gana el equipo {w}!',fr:'Sortie forcée : {n} ! L’équipe {w} gagne !'},
+  timeoutTitle:{ja:'{l} 時間切れ！{w}の勝ち',en:'Time out: {l} team — {w} team wins!',zh:'超时：{l}——{w}获胜！',tw:'超時：{l}——{w}獲勝！',ko:'시간 초과: {l} — {w} 승리!',hi:'समय समाप्त: {l} — {w} टीम जीती!',es:'Tiempo agotado: {l} — ¡gana el equipo {w}!',fr:'Temps écoulé : {l} — l’équipe {w} gagne !'},
+  // --- 強制アウト解説 ---
+  youParen:{ja:'（あなた）',en:' (You)',zh:'（你）',tw:'（你）',ko:'(나)',hi:' (आप)',es:' (Tú)',fr:' (Vous)'},
+  aiParen:{ja:'（AI）',en:' (AI)',zh:'（AI）',tw:'（AI）',ko:'(AI)',hi:' (AI)',es:' (IA)',fr:' (IA)'},
+  fo1:{ja:'ゲームが止まりました。{n}番{who}が「強制アウト」です。',ja_slow:'ゲームが とまりました。{n}ばん{who}が「きょうせい アウト」です。',en:'The game stopped. Player {n}{who} is "Forced Out".',zh:'游戏停止。{n}号{who}「强制出局」。',tw:'遊戲停止。{n}號{who}「強制出局」。',ko:'게임이 멈췄습니다. {n}번{who}이(가) "강제 아웃"입니다.',hi:'खेल रुक गया। खिलाड़ी {n}{who} "जबरन आउट"।',es:'El juego se detuvo. El Jugador {n}{who} está "Fuera forzado".',fr:'La partie s’est arrêtée. Le Joueur {n}{who} est « Sortie forcée ».'},
+  fo2:{ja:'置けるマスが、置くと自分の色が0個になるマスしか残っていませんでした。',ja_slow:'おける マスが、おくと じぶんの いろが 0こに なる マスだけでした。',en:'The only legal squares left would reduce their own color to 0.',zh:'仅剩的可下格子都会让自己的颜色归零。',tw:'僅剩的可下格子都會讓自己的顏色歸零。',ko:'남은 둘 수 있는 칸은 모두 자기 색을 0으로 만드는 칸뿐이었습니다.',hi:'बचे हुए सभी मान्य खाने अपने ही रंग को शून्य कर देते।',es:'Las únicas casillas legales restantes dejarían su propio color en 0.',fr:'Les seules cases légales restantes réduiraient sa propre couleur à 0.'},
+  fo3human:{ja:'自分の色を0個にすると、他に手が無くても即負け。これがこのゲームのルールです。',ja_slow:'じぶんの いろを 0こに すると、ほかに てが なくても そくまけ。それが ルールです。',en:'Reducing your own color to 0 is an instant loss — even if forced. That is the rule.',zh:'把自己的颜色归零即判负，即使是被迫的。这就是规则。',tw:'把自己的顏色歸零即判負，即使是被迫的。這就是規則。',ko:'자기 색을 0으로 만들면 강제라도 즉시 패배. 그것이 규칙입니다.',hi:'अपना रंग शून्य करना तुरंत हार — मजबूरी में भी। यही नियम है।',es:'Dejar tu color en 0 es derrota inmediata, aunque sea forzado. Esa es la regla.',fr:'Réduire sa couleur à 0 = défaite immédiate, même forcée. C’est la règle.'},
+  fo3humanWin:{ja:'{w}の勝ちです。残念！',ja_slow:'{w}の かちです。ざんねん！',en:'{w} team wins. So close!',zh:'{w}获胜。差一点！',tw:'{w}獲勝。差一點！',ko:'{w} 승리. 아쉽네요!',hi:'{w} टीम जीती। बस थोड़े से!',es:'Gana el equipo {w}. ¡Por poco!',fr:'L’équipe {w} gagne. Si près !'},
+  fo3aiLost:{ja:'自分の色を0個にすると即負け。AIがこのルールで詰みました。',ja_slow:'じぶんの いろを 0こに すると そくまけ。AIが この ルールで つみました。',en:'Reducing your own color to 0 is an instant loss — the AI got trapped by it.',zh:'把自己的颜色归零即判负——AI被这条规则困住了。',tw:'把自己的顏色歸零即判負——AI被這條規則困住了。',ko:'자기 색을 0으로 만들면 즉시 패배 — AI가 이 규칙에 걸렸습니다.',hi:'अपना रंग शून्य करना तुरंत हार — AI इसी में फँस गया।',es:'Dejar tu color en 0 es derrota inmediata: la IA cayó en ello.',fr:'Réduire sa couleur à 0 = défaite immédiate : l’IA s’y est piégée.'},
+  fo3aiWin:{ja:'あなたの勝ちです！お見事！',ja_slow:'あなたの かちです！おみごと！',en:'You win! Well played!',zh:'你赢了！漂亮！',tw:'你贏了！漂亮！',ko:'당신의 승리! 멋집니다!',hi:'आप जीते! बढ़िया खेल!',es:'¡Ganaste! ¡Bien jugado!',fr:'Vous gagnez ! Bien joué !'},
+  fo3other:{ja:'自分の色を0個にすると、他に手が無くても即負け。{w}の勝ちです。',ja_slow:'じぶんの いろを 0こに すると そくまけ。{w}の かち。',en:'Reducing your own color to 0 is an instant loss. {w} wins.',zh:'把自己的颜色归零即判负。{w}获胜。',tw:'把自己的顏色歸零即判負。{w}獲勝。',ko:'자기 색을 0으로 만들면 즉시 패배. {w} 승리.',hi:'अपना रंग शून्य करना तुरंत हार। {w} जीता।',es:'Dejar tu color en 0 es derrota inmediata. Gana {w}.',fr:'Réduire sa couleur à 0 = défaite immédiate. {w} gagne.'},
+  fo4:{ja:'「自分の色を絶やさない」よう先を読む駆け引きこそ、KATSUBE CUBEの醍醐味です。',ja_slow:'「じぶんの いろを たやさない」よう さきを よむ——それが このゲームの おもしろさ。',en:'Never letting your own color die — that tense foresight is the heart of KATSUBE CUBE.',zh:'不让自己的颜色消失——这种步步为营的算计正是KATSUBE CUBE的精髓。',tw:'不讓自己的顏色消失——這種步步為營的算計正是KATSUBE CUBE的精髓。',ko:'자기 색을 끊기지 않게 앞을 읽는 수싸움 — 그것이 KATSUBE CUBE의 묘미입니다.',hi:'अपना रंग कभी न मिटने देना — यही दूरदर्शी कशमकश KATSUBE CUBE की जान है।',es:'No dejar morir tu color: esa previsión tensa es el corazón de KATSUBE CUBE.',fr:'Ne jamais laisser mourir sa couleur — cette anticipation tendue est le cœur de KATSUBE CUBE.'},
+  // --- 学習トースト（勝利後）---
+  learnToast:{ja:'🎓 あなたの勝ち手を <b>{n}手</b> 記憶しました',en:'🎓 Learned <b>{n}</b> of your winning moves',zh:'🎓 已记住你的 <b>{n}</b> 步制胜手',tw:'🎓 已記住你的 <b>{n}</b> 步制勝手',ko:'🎓 당신의 승리 수 <b>{n}</b>개를 기억했습니다',hi:'🎓 आपकी <b>{n}</b> विजयी चालें याद कीं',es:'🎓 Aprendí <b>{n}</b> de tus jugadas ganadoras',fr:'🎓 <b>{n}</b> de vos coups gagnants appris'},
+  learnToastSub:{ja:'お手本 累計 {total} 局面',en:'Playbook total: {total} positions',zh:'范例累计 {total} 个局面',tw:'範例累計 {total} 個局面',ko:'학습 누적 {total} 국면',hi:'कुल {total} स्थितियाँ संचित',es:'Repertorio total: {total} posiciones',fr:'Répertoire total : {total} positions'},
+  // --- デモ/ヒント（テンプレ・MT非対応分）---
+  demoOut:{ja:'{name} アウト！次の自分の番に2個復活できます',ja_slow:'{name}が アウト！つぎの じぶんの ばんに 2こ ふっかつできます',en:'{name} is Out! Place 2 back on their next turn.',zh:'{name} 出局！下一回合可放2子复活。',tw:'{name} 出局！下一回合可放2子復活。',ko:'{name} 아웃! 다음 자기 차례에 2개 부활할 수 있습니다.',hi:'{name} आउट! अगली अपनी बारी में 2 मोहरे वापस रख सकते हैं।',es:'¡{name} eliminado! Coloca 2 de vuelta en su próximo turno.',fr:'{name} éliminé ! Replacez 2 pièces au tour suivant.'},
+  suicideHint:{ja:'{name}：置けるのは光っているマスだけ。でも置くと自分の色が消えてしまいます…',ja_slow:'{name}：おけるのは ひかっている マスだけ。でも おくと じぶんの いろが きえます…',en:'{name}: The only square you can play is the blinking one — but it erases your own color…',zh:'{name}：只能下在闪烁的格子，但那样会让自己的颜色消失…',tw:'{name}：只能下在閃爍的格子，但那樣會讓自己的顏色消失…',ko:'{name}: 둘 수 있는 칸은 깜빡이는 칸뿐 — 하지만 두면 자기 색이 사라집니다…',hi:'{name}: सिर्फ़ चमकता खाना ही खेल सकते हैं — पर वहाँ रखने से आपका रंग मिट जाएगा…',es:'{name}: La única casilla jugable es la que parpadea, pero borra tu propio color…',fr:'{name} : La seule case jouable est celle qui clignote — mais elle efface votre couleur…'},
+  demoEx1:{ja:'【例１】１は２か４を挟み0にできます。相手の駒は0にできますが、自分の片方の駒を0にすると即負けです。',ja_slow:'【れい１】1は 2か4を はさんで 0に できます。あいての こまは 0に できますが、じぶんの こまを 0に すると そくまけです',en:'[Rule] Flipping opponent pieces to 0 is OK. But if your own piece reaches 0 — instant loss!',zh:'【例1】1可夹住2或4使其归零。把对手清零可以，但自己的一种棋子归零即判负。',tw:'【例1】1可夾住2或4使其歸零。把對手清零可以，但自己的一種棋子歸零即判負。',ko:'【예1】1은 2나 4를 끼워 0으로 만들 수 있습니다. 상대를 0으로 만드는 건 OK지만, 자기 말 한 색이 0이 되면 즉시 패배.',hi:'【उदा.1】1, 2 या 4 को घेरकर शून्य कर सकता है। प्रतिद्वंद्वी को शून्य करना ठीक है, पर अपना एक मोहरा शून्य हुआ तो तुरंत हार।',es:'【Ej.1】El 1 puede atrapar al 2 o al 4 y dejarlo en 0. Dejar al rival en 0 vale, pero dejar una de tus piezas en 0 es derrota inmediata.',fr:'【Ex.1】Le 1 peut encadrer le 2 ou le 4 et le mettre à 0. Mettre l’adversaire à 0 est permis, mais réduire une de vos pièces à 0 = défaite immédiate.'},
+  demoDiagFlip:{ja:'２が右上の１を斜め挟みしました！',ja_slow:'2が 1を ななめ はさみ！',en:'Player 2 flips the 1 diagonally toward the corner!',zh:'2斜向夹住了右上的1！',tw:'2斜向夾住了右上的1！',ko:'2가 오른쪽 위의 1을 대각선으로 끼웠습니다!',hi:'2 ने ऊपर-दाएँ के 1 को तिरछे घेरा!',es:'¡El 2 atrapa en diagonal al 1 de arriba a la derecha!',fr:'Le 2 encadre en diagonale le 1 en haut à droite !'},
+  demoNoBlock:{ja:'３が置きました。今回は３が角を止めなかった場合のサンプルです',ja_slow:'3が おきました（かどを とめなかった ばあいの サンプル）',en:'Player 3 placed — this shows what happens when Player 3 does not block.',zh:'3已落子。这是3未阻止夺角时的示例。',tw:'3已落子。這是3未阻止奪角時的示例。',ko:'3을 두었습니다. 이번엔 3이 모서리를 막지 않은 경우의 예입니다.',hi:'3 ने रखा। यह उदाहरण दिखाता है कि जब 3 कोना नहीं रोकता तो क्या होता है।',es:'El 3 colocó: este ejemplo muestra qué pasa cuando el 3 no bloquea.',fr:'Le 3 a placé : cet exemple montre ce qui arrive quand le 3 ne bloque pas.'}
+};
+// 動的な戦術理由（リラックスAI）
+const REASON = {
+  '角を防ぎました':{ja:'角を防ぎました',en:'blocks the corner',zh:'阻止了夺角',tw:'阻止了奪角',ko:'모서리를 막았습니다',hi:'कोना रोका',es:'bloquea la esquina',fr:'bloque le coin'},
+  '対角線の起点を崩しました':{ja:'対角線の起点を崩しました',en:'breaks the diagonal’s start',zh:'破坏了对角线的起点',tw:'破壞了對角線的起點',ko:'대각선의 기점을 무너뜨렸습니다',hi:'विकर्ण की शुरुआत बिगाड़ी',es:'rompe el inicio de la diagonal',fr:'casse le départ de la diagonale'},
+  '対角線を崩しました':{ja:'対角線を崩しました',en:'breaks the diagonal',zh:'破坏了对角线',tw:'破壞了對角線',ko:'대각선을 무너뜨렸습니다',hi:'विकर्ण बिगाड़ा',es:'rompe la diagonal',fr:'casse la diagonale'},
+  '角への経路をブロックしました':{ja:'角への経路をブロックしました',en:'blocks the path to the corner',zh:'封锁了通往角的路径',tw:'封鎖了通往角的路徑',ko:'모서리로 가는 경로를 막았습니다',hi:'कोने का रास्ता रोका',es:'bloquea el camino a la esquina',fr:'bloque le chemin vers le coin'}
+};
+function tReason(ja){ const e=REASON[ja]; if(!e) return ja; return (lang==='ja')?e.ja:(e[lang]||e.en||e.ja); }
+// ゲーム中メッセージ リゾルバ：ja(ゆっくり対応)、その他は lang→en→ja。{key} を vars で差し替え。
+function tMsg(key, vars){
+  const e=MSG[key]; if(!e) return '';
+  let s=(lang==='ja' && slowMode && e.ja_slow!==undefined) ? e.ja_slow : (e[lang]||e.en||e.ja);
+  if(vars) for(const k in vars) s=s.split('{'+k+'}').join(vars[k]);
+  return s;
+}
+
+// 直書きメニュー（難易度/対戦形式/時間設定/戻る）の翻訳適用
+let subModeCtx = { mode:'intermediate', min:0 };
+function renderSubModeLabel(){
+  const el=document.getElementById('subModeLabel'); if(!el) return;
+  const emoji = subModeCtx.mode==='relax'?'🌿':subModeCtx.mode==='competition'?'🏆':'⚔️';
+  const name  = subModeCtx.mode==='relax'?LX('relaxT'):subModeCtx.mode==='competition'?LX('compT'):LX('interT');
+  const suffix= subModeCtx.mode==='competition'&&subModeCtx.min?` (${subModeCtx.min} ${LX('timeMin')})`:'';
+  el.textContent = `${emoji} ${name}${suffix} — ${LX('selectFormat')}`;
+}
+function setTxt(sel, txt){ const e=document.querySelector(sel); if(e) e.textContent=txt; }
+function applyMenuLang(){
+  setTxt('#diffLabel', LX('selectMode'));
+  setTxt('#btnRelax .mode-title', LX('relaxT'));        setTxt('#btnRelax .mode-desc', LX('relaxD'));
+  setTxt('#btnIntermediate .mode-title', LX('interT')); setTxt('#btnIntermediate .mode-desc', LX('interD'));
+  setTxt('#btnCompetition .mode-title', LX('compT'));   setTxt('#btnCompetition .mode-desc', LX('compD'));
+  setTxt('#btnSubAI .mode-title', LX('btnAI'));         setTxt('#btnSubAI .mode-desc', LX('btnAIdesc'));
+  setTxt('#btnSubVS .mode-title', LX('subVST'));        setTxt('#btnSubVS .mode-desc', LX('subVSD'));
+  setTxt('#btnSubParallel .mode-title', LX('subParT')); setTxt('#btnSubParallel .mode-desc', LX('subParD'));
+  ['btnDifficultyBack','btnTimeBack','btnOrderBack','btnVsOrderBack'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=LX('back'); });
+  // 時間設定メニュー
+  setTxt('#timeLabel', `🏆 ${LX('compT')} — ${LX('timeTitle')}`);
+  document.querySelectorAll('#timeMenu .time-btn[data-min]').forEach(b=>{ b.textContent = b.dataset.min+' '+LX('timeMin'); });
+  setTxt('#timeOtherLabel', LX('timeOther'));
+  setTxt('#timeMinLabel', LX('timeMin'));
+  setTxt('#timeCustomGo', LX('timeGo'));
+  { const n=document.getElementById('timeNote'); if(n) n.innerHTML=LX('timeNote'); }
+  renderSubModeLabel();
+}
+
 function applyLang(){
-  document.getElementById('btnLang').textContent = lang==='ja'?'EN':'日本語';
-  document.querySelector('.team-box.sente .team-label').textContent = L.sente[lang];
-  document.querySelector('.team-box.gote .team-label').textContent  = L.gote[lang];
+  document.getElementById('btnLang').textContent = langName(lang);
+  document.querySelector('.team-box.sente .team-label').textContent = LX('sente');
+  document.querySelector('.team-box.gote .team-label').textContent  = LX('gote');
   const sl=['1番・先手','2番・後手','3番・先手','4番・後手'];
   const el=['#1 1st','#2 2nd','#3 1st','#4 2nd'];
   for(let i=1;i<=4;i++){
@@ -887,13 +1455,13 @@ function applyLang(){
     if(mn&&mn.parentElement) mn.parentElement.querySelector('.sc-label').textContent=lbl;
   }
   // ゆっくりモード時はメニューボタンもひらがなに切り替える
-  const _L = (key) => lang==='en' ? L[key].en : (slowMode && L[key].ja_slow ? L[key].ja_slow : L[key].ja);
+  const _L = LX;
   document.querySelector('#btnAI .mode-title').textContent    = _L('btnAI');
   document.querySelector('#btnAI .mode-desc').textContent     = _L('btnAIdesc');
   document.querySelector('#btnVS .mode-title').textContent    = _L('btnVS');
   document.querySelector('#btnVS .mode-desc').textContent     = _L('btnVSdesc');
-  document.querySelector('#btnSlow .slow-title').textContent  = L.btnSlow[lang];
-  document.querySelector('#btnSlow .slow-desc').textContent   = L.btnSlowDesc[lang];
+  document.querySelector('#btnSlow .slow-title').textContent  = LX('btnSlow');
+  document.querySelector('#btnSlow .slow-desc').textContent   = LX('btnSlowDesc');
   // ゆっくりモードON時：ボタンを緑枠で強調
   document.getElementById('btnSlow').classList.toggle('on', slowMode);
   // 選択ボタンラベル（シンプル版：先手/後手のみ）
@@ -911,16 +1479,18 @@ function applyLang(){
   document.getElementById('btnQuit').textContent       = _L('btnQuit');
   document.getElementById('btnRetry').textContent      = _L('retry');
   document.getElementById('btnResultMenu').textContent = _L('toMenu');
-  document.querySelector('.footer').textContent = L.footer[lang];
-  // NAMES：ゆっくりモード時はひらがな
-  if(lang==='en'){
-    NAMES[1]='Player 1'; NAMES[2]='Player 2'; NAMES[3]='Player 3'; NAMES[4]='Player 4';
-  } else if(slowMode){
+  document.querySelector('.footer').textContent = LX('footer');
+  applyMenuLang();
+  // NAMES：日本語ゆっくり時はひらがな、その他言語は「プレイヤーN」形式
+  if(lang==='ja' && slowMode){
     NAMES[1]='1ばん（せんて）'; NAMES[2]='2ばん（ごて）';
     NAMES[3]='3ばん（せんて）'; NAMES[4]='4ばん（ごて）';
-  } else {
+  } else if(lang==='ja'){
     NAMES[1]='1番(先手)'; NAMES[2]='2番(後手)';
     NAMES[3]='3番(先手)'; NAMES[4]='4番(後手)';
+  } else {
+    const pw={en:'Player ',zh:'玩家',tw:'玩家',ko:'플레이어 ',hi:'खिलाड़ी ',es:'Jugador ',fr:'Joueur '}[lang]||'Player ';
+    for(let i=1;i<=4;i++) NAMES[i]=pw+i;
   }
 }
 
@@ -968,6 +1538,13 @@ let demoTargetScene = 0;   // ジャンプ先シーン番号（0=最初から）
 const DEMO_SCENE_COUNT = 9; // 総シーン数
 let slowMode   = false;
 let humanHasTakenCorner = false;
+let forcedExplainDone = false; // 人間の強制アウト：説明済みなら配置時の再説明を抑止
+// ===== 競技モード（チェスクロック）=====
+let compMode = false;            // 競技モード（タイマー有効）か
+let compTimeMs = 30*60*1000;     // 各自の持ち時間（ミリ秒）。既定30分
+// 角を担当するAIプレイヤー（1色に集中）
+// null=未決定、決まったら固定（パートナーは角を取らない）
+let aiCornerPlayer = null;
 
 // ===== ゲームログシステム =====
 let gameLog = {
@@ -1058,8 +1635,10 @@ function printGameLog(finalBoard, winner, selfDestruct){
 
 // ゆっくりモード用メッセージ切り替え
 function M(ja_normal, ja_slow, en_normal, en_slow){
-  if(lang==='en') return slowMode ? (en_slow||en_normal) : en_normal;
-  return slowMode ? ja_slow : ja_normal;
+  if(lang==='ja') return (slowMode && ja_slow) ? ja_slow : ja_normal;
+  if(lang==='en') return slowMode ? (en_slow||en_normal) : (en_normal||ja_normal);
+  // その他の言語：日本語(通常)をキーに翻訳マップMTを引く。無ければ英語→日本語にフォールバック
+  return (MT[lang] && MT[lang][ja_normal]) || en_normal || ja_normal;
 }
 // ゆっくりモード用タイミング
 function TT(key){ return slowMode ? T[key]*1.8 : T[key]; }
@@ -1242,13 +1821,17 @@ function updateTurnChips(bd){
   const isAI = (gameMode==='ai');
   if(!mainRow) return;
 
+  // ★手番順を現在のturnから並べ替え：左端＝これから置く駒。1手進むごとに左へシフトする。
+  //   復活待ちの番号は2枚並べて表示＝「挟まずに2個置くだけ（復活）」だと位置で分かる。
+  const order=[]; for(let i=0;i<4;i++) order.push((turn-1+i)%4+1);
+
   let chips = [];
-  [1,2,3,4].forEach(n=>{
+  order.forEach((n,idx)=>{
     const c = countC(bd,n);
-    const isActive = (n===turn && (phase==='play'||phase==='setup'));
-    const isRevive = reviveQueue.includes(n); // reviveQueueの全番号を対象
+    const isActive = (idx===0 && (phase==='play'||phase==='setup')); // 左端＝現在の手番をハイライト
+    const isRevive = reviveQueue.includes(n); // 復活待ち＝2個置くだけ
     const isDim = (c===0 && !isRevive);
-    const count = isRevive ? 2 : 1; // 復活待ちは2個表示
+    const count = isRevive ? 2 : 1; // 復活は2枚並べて明示
     for(let i=0;i<count;i++) chips.push({n,isActive,isDim,isRevive});
   });
 
@@ -1259,16 +1842,12 @@ function updateTurnChips(bd){
     return `<div class="turn-chip" style="background:${bg};border:1.5px solid ${COLORS[n]};color:${textColor};opacity:${opacity};${isRevive?'box-shadow:0 0 4px '+COLORS[n]+';':''}">${n}</div>`;
   };
 
-  // 主側（右）：正順
+  // 主側（右）：左端＝現在の手番
   mainRow.innerHTML = chips.map(makeChip).join('');
 
-  // ゲスト側（左・180度回転済みのdiv内）：VSのみ・逆順
+  // ゲスト側（左・180度回転済みのdiv内）：反転して相手視点でも左端＝現在の手番
   if(guestRow){
-    if(isVS){
-      guestRow.innerHTML = chips.map(makeChip).join('');
-    } else {
-      guestRow.innerHTML = '';
-    }
+    guestRow.innerHTML = isVS ? chips.slice().reverse().map(makeChip).join('') : '';
   }
 }
 
@@ -1328,10 +1907,10 @@ async function runDemo(){
   const pauseBtn=document.createElement('div');
   pauseBtn.id='demoPauseBtn';
   pauseBtn.style.cssText='position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;z-index:60;user-select:none;';
-  pauseBtn.textContent='⏸ タップで一時停止';
+  pauseBtn.textContent=LX('demoPause');
   pauseBtn.onclick=()=>{
     demoPaused=!demoPaused;
-    pauseBtn.textContent=demoPaused?'▶ タップで再開':'⏸ タップで一時停止';
+    pauseBtn.textContent=demoPaused?LX('demoResume'):LX('demoPause');
     pauseBtn.style.background=demoPaused?'rgba(52,152,219,0.8)':'rgba(0,0,0,0.55)';
   };
   const boardArea=document.getElementById('boardArea')||document.getElementById('board').parentElement;
@@ -1344,7 +1923,7 @@ async function runDemo(){
 
   const prevBtn=document.createElement('div');
   prevBtn.style.cssText='background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;user-select:none;';
-  prevBtn.textContent='◀ 前へ';
+  prevBtn.textContent=LX('demoPrev');
   prevBtn.onclick=()=>{
     if(demoTargetScene>0) demoTargetScene--;
     demoNavAbort=true;
@@ -1353,7 +1932,7 @@ async function runDemo(){
 
   const nextBtn=document.createElement('div');
   nextBtn.style.cssText='background:rgba(0,0,0,0.55);color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;user-select:none;';
-  nextBtn.textContent='次へ ▶';
+  nextBtn.textContent=LX('demoNext');
   nextBtn.onclick=()=>{
     if(demoTargetScene<DEMO_SCENE_COUNT-1) demoTargetScene++;
     demoNavAbort=true;
@@ -1400,10 +1979,7 @@ async function runDemo(){
           return bd;
         }
       } else if(step[0]==='out'){
-        showMsg(M(`${NAMES[step[1]]} アウト！次の自分の番に2個復活できます`,
-                  `${NAMES[step[1]]}が アウト！つぎの じぶんの ばんに 2こ ふっかつできます`,
-                  `${NAMES[step[1]]} is Out! Place 2 back on their next turn.`,
-                  `${NAMES[step[1]]} is Out! Place 2 back on their next turn.`));
+        showMsg(tMsg('demoOut',{name:NAMES[step[1]]}));
         await dw(TT('RULE'));
       } else if(step[0]==='rv'){
         const [,n,x,y]=step;
@@ -1539,10 +2115,7 @@ async function runDemo(){
 
     // ===== ① 相手の駒を0にした時 =====
     demoSceneIdx=3;
-    showMsg(M('【例１】１は２か４を挟み0にできます。相手の駒は0にできますが、自分の片方の駒を0にすると即負けです。',
-              '【れい１】1は 2か4を はさんで 0に できます。あいての こまは 0に できますが、じぶんの こまを 0に すると そくまけです',
-              '[Rule] Flipping opponent pieces to 0 is OK. But if your own piece reaches 0 — instant loss!',
-              '[Rule] Flipping opponent pieces to 0 is OK. But if your own piece reaches 0 — instant loss!')); await dw(TT('RULE'));
+    showMsg(tMsg('demoEx1')); await dw(TT('RULE'));
     if(demoAbort) break;
     bd=Array(S*S).fill(''); bd[4*S+4]='1'; bd[4*S+5]='2'; bd[5*S+4]='3'; bd[5*S+5]='4'; renderBoard(bd);
     await dw(TT('MSG')); if(demoAbort) break;
@@ -1679,10 +2252,7 @@ async function runDemo(){
 
     await dw(TTpre());
     bd=applyMove(bd,7,1,2); renderBoard(bd); await dw(TTpost());
-    showMsg(M('２が右上の１を斜め挟みしました！',
-              '2が 1を ななめ はさみ！',
-              'Player 2 flips the 1 diagonally toward the corner!',
-              'Player 2 flips the 1 diagonally toward the corner!')); await dw(TT('MOVE'));
+    showMsg(tMsg('demoDiagFlip')); await dw(TT('MOVE'));
     if(demoAbort) break;
 
     { // 3番: 4番を減らさない手を優先
@@ -1691,10 +2261,7 @@ async function runDemo(){
       const mv=safe3.find(m=>countC(applyMove(bd,m.x,m.y,3),4)===before4)
               ||safe3[0]||getSafeLegal(bd,3)[0];
       if(mv){ await dw(TTpre()); bd=applyMove(bd,mv.x,mv.y,3); renderBoard(bd);
-        showMsg(M('３が置きました。今回は３が角を止めなかった場合のサンプルです',
-                  '3が おきました（かどを とめなかった ばあいの サンプル）',
-                  'Player 3 placed — this shows what happens when Player 3 does not block.',
-                  'Player 3 placed — this shows what happens when Player 3 does not block.'));
+        showMsg(tMsg('demoNoBlock'));
         await dw(TTpost()); } }
     if(demoAbort) break;
 
@@ -1976,7 +2543,15 @@ function evalBoard(bd, myGrp, opGrp){
 // X位置チェック（角が空いているときにX位置へ置くのは危険）
 // KATSUBE CUBEでは赤マス[1,1][7,1][1,7][7,7]は対角線の起点として重要
 // オセロのX打ちペナルティは適用しない
-function isXPos(x, y, bd){ return false; }
+function isXPos(x, y, bd){
+  // X字マス（角の斜め隣）かつ対応する角が空の場合に true
+  // (1,1)→角(0,0)、(7,1)→角(8,0)、(1,7)→角(0,8)、(7,7)→角(8,8)
+  const map = [[1,1,0,0],[7,1,8,0],[1,7,0,8],[7,7,8,8]];
+  for(const [px,py,cx,cy] of map){
+    if(x===px && y===py) return !bd[cy*S+cx]; // 角が空ならtrue
+  }
+  return false;
+}
 
 // 2手先読みミニマックス（時間制限付き）
 function minimax2(bd, myN, myGrp, opGrp, depth, isMyTurn, currentTurn){
@@ -2707,16 +3282,16 @@ function pickTargeting(bd, me, target){
 // ②外周内側は外周ルートの要→高く評価
 // ③対角線上[2,2][3,3]等は布石として有効→プラス評価
 const PW=[
-//  x=0     1      2      3      4      5      6      7      8
-  20000,  1500,  8000,  5000,  4000,  5000,  8000,  1500, 20000, // y=0 外周上段 ※(1,0)(7,0)=C字マス
-   1500, 18000,  6000,  3000,  2500,  3000,  6000, 18000,  1500, // y=1 赤マス行 ※(0,1)(8,1)=C字マス
-   8000,  6000,  4000,  2000,  1500,  2000,  4000,  6000,  8000, // y=2 対角線
-   5000,  3000,  2000,  1000,   800,  1000,  2000,  3000,  5000, // y=3
-   4000,  2500,  1500,   800,  1000,   800,  1500,  2500,  4000, // y=4 中央
-   5000,  3000,  2000,  1000,   800,  1000,  2000,  3000,  5000, // y=5
-   8000,  6000,  4000,  2000,  1500,  2000,  4000,  6000,  8000, // y=6 対角線
-   1500, 18000,  6000,  3000,  2500,  3000,  6000, 18000,  1500, // y=7 赤マス行 ※(0,7)(8,7)=C字マス
-  20000,  1500,  8000,  5000,  4000,  5000,  8000,  1500, 20000  // y=8 外周下段 ※(1,8)(7,8)=C字マス
+//  x=0      1       2      3      4      5      6       7      8
+  20000,  -4000,   8000,  5000,  4000,  5000,  8000,  -4000, 20000, // y=0 ※C字マス(1,0)(7,0)を-4000
+  -4000, -12000,   6000,  3000,  2500,  3000,  6000, -12000, -4000, // y=1 ※X字マス(1,1)(7,1)=-12000、C字(0,1)(8,1)=-4000
+   8000,   6000,   4000,  2000,  1500,  2000,  4000,   6000,  8000, // y=2
+   5000,   3000,   2000,  1000,   800,  1000,  2000,   3000,  5000, // y=3
+   4000,   2500,   1500,   800,  1000,   800,  1500,   2500,  4000, // y=4
+   5000,   3000,   2000,  1000,   800,  1000,  2000,   3000,  5000, // y=5
+   8000,   6000,   4000,  2000,  1500,  2000,  4000,   6000,  8000, // y=6
+  -4000, -12000,   6000,  3000,  2500,  3000,  6000, -12000, -4000, // y=7 ※X字マス(1,7)(7,7)=-12000
+  20000,  -4000,   8000,  5000,  4000,  5000,  8000,  -4000, 20000  // y=8 ※C字マス(1,8)(7,8)を-4000
 ];
 
 // ============================================================
@@ -2725,63 +3300,60 @@ const PW=[
 // α-β枝刈りで計算量を削減（候補8手×深さ3で盤面を先読み）
 // ============================================================
 
-const MM_DEPTH       = 4;
-const MM_CANDS_ROOT  = 8;  // ルートノードの候補手数（Phase7: 6→8）
-const MM_CANDS_INNER = 4;  // 内部ノードの候補手数
+// 中級モード：深さ5で強化（4→5）。処理が遅い場合は4に戻す
+// 反復深化（iterative deepening）：時間予算の範囲で可能な限り深く読む
+let MM_TIME_BUDGET = 1600; // 1手の思考予算(ms)。超えたら打ち切り（評価は勝利条件整合済→深いほど強い）
+let MM_MAX_DEPTH   = 14;   // 反復深化の最大深さ（終盤は読み切りに近づく）
+let MM_DEPTH       = 7;    // 互換のため保持（未使用）
+let MM_CANDS_ROOT  = 10;   // ルートノードの候補手数
+let MM_CANDS_INNER = 5;    // 内部ノードの候補手数
+
+// ===== AI調整可能重み（AI強化モードで自動更新） =====
+let AI_CORNER_W  = 18000;  // 角の価値
+let AI_EDGE_W    = 800;    // 辺支配の価値
+let AI_THREAT_W  = 250;    // 相手支配色の脅威係数
+let AI_SURVIVAL1 = 25000;  // 自チーム1枚残存ペナルティ
 
 function evalBoardMM(bd, myGrp, opGrp){
-  // Phase7: personalScore(max*1.2+min*0.8)→合計枚数ベースに変更
-  // 理由: 旧式は片方の駒を犠牲にして強い方を伸ばすことを微妙に報酬していた
-  const myTotal = myGrp.reduce((s,k) => s + countC(bd,k), 0);
-  const opTotal = opGrp.reduce((s,k) => s + countC(bd,k), 0);
-  const mySub = Math.min(...myGrp.map(k => countC(bd, k)));
-  const opSub = Math.min(...opGrp.map(k => countC(bd, k)));
+  // ★勝利条件に直結する評価：勝敗は「単一色で最多」で決まる。
+  //   よって主目的は (自分の最多色) − (相手の最多色)。合計枚数ではない。
+  const my0=countC(bd,myGrp[0]), my1=countC(bd,myGrp[1]);
+  const op0=countC(bd,opGrp[0]), op1=countC(bd,opGrp[1]);
+  const myBest = Math.max(my0,my1), opBest = Math.max(op0,op1);
+  const mySub  = Math.min(my0,my1), opSub  = Math.min(op0,op1);
+  const myTotal = my0+my1, opTotal = op0+op1;
 
-  let score = (myTotal - opTotal) * 100;
+  // ① 一色集中：最多色の差（勝敗は単一色で決まるので重要）
+  //    ただし重すぎると「味方の色を食って最多色を水増し」する内部共食いを招くため抑制。
+  let score = (myBest - opBest) * 2500;
 
-  // 相手の支配色追加ペナルティ（1色が20枚超で脅威が急増）
-  const opMax = Math.max(...opGrp.map(k => countC(bd, k)));
-  if(opMax > 20) score -= (opMax - 20) * 250;
+  // ② 陣地（実際の駒取り）：相手を裏返して伸ばす手を強く評価。
+  //    内部共食い（合計不変）より、相手を削って総量を増やす手を選ばせる核心の項。
+  score += (myTotal - opTotal) * 300;
 
-  // チームメンバー生存評価（強化版：1枚残存は危機的状況）
-  if(mySub === 0) score -= 9000000;
-  else if(mySub === 1) score -= 25000;
-  else if(mySub === 2) score -= 5000;
-  if(opSub === 0) score += 9000000;
-  else if(opSub === 1) score += 8000;
-  else if(opSub === 2) score += 2000;
-
-  // 個別色の危険度評価（チーム最小に加えた補強：各色ごとに枚数をチェック）
-  for(const k of myGrp){
-    const c = countC(bd, k);
-    if(c === 1) score -= 10000;
-    else if(c <= 3) score -= 2000;
-  }
-  for(const k of opGrp){
-    const c = countC(bd, k);
-    if(c === 1) score += 4000;
-    else if(c <= 3) score += 1000;
-  }
-
-  // パートナー間の駒数差ペナルティ（極端な偏りは弱い方がターゲットになりやすい）
-  const myImbal = Math.abs(countC(bd, myGrp[0]) - countC(bd, myGrp[1]));
-  const opImbal = Math.abs(countC(bd, opGrp[0]) - countC(bd, opGrp[1]));
-  if(myImbal > 20) score -= 3000;
-  else if(myImbal > 12) score -= 1200;
-  if(opImbal > 20) score += 1500;
-  else if(opImbal > 12) score += 600;
+  // ③ 自滅回避（最重要：自色0は即負け）＋ 低い色の保護
+  //    一色を伸ばしても、もう一色を0/極小にして自滅しないよう強く守る
+  if(mySub === 0)      score -= 9000000;
+  else if(mySub === 1) score -=  60000;
+  else if(mySub === 2) score -=  18000;
+  else if(mySub === 3) score -=   6000;
+  else if(mySub === 4) score -=   2000;
+  // 相手を0にしても復活する（盤内に2個置き直し）ので価値は控えめ
+  if(opSub === 0)      score +=  30000;
+  else if(opSub === 1) score +=   9000;
+  else if(opSub === 2) score +=   2500;
 
   // 角の支配 + 空き角へのアクセス権（getFlipsで高速化）
   const CRN = [[0,0],[0,8],[8,0],[8,8]];
   for(const [cx,cy] of CRN){
     const v = Number(bd[cy*S+cx]);
     if(myGrp.includes(v)){
-      score += 18000;
+      score += AI_CORNER_W;
     } else if(opGrp.includes(v)){
-      score -= 18000;
+      score -= AI_CORNER_W;
     } else {
-      if(myGrp.some(k=>getFlips(bd,cx,cy,k).length>0)) score += 12000;
-      if(opGrp.some(k=>getFlips(bd,cx,cy,k).length>0)) score -= 12000;
+      if(myGrp.some(k=>getFlips(bd,cx,cy,k).length>0)) score += Math.round(AI_CORNER_W*0.667);
+      if(opGrp.some(k=>getFlips(bd,cx,cy,k).length>0)) score -= Math.round(AI_CORNER_W*0.667);
     }
   }
 
@@ -2795,7 +3367,7 @@ function evalBoardMM(bd, myGrp, opGrp){
     if(myGrp.includes(v)) myEdge++;
     else if(opGrp.includes(v)) opEdge++;
   }
-  score += (myEdge - opEdge) * 800;
+  score += (myEdge - opEdge) * AI_EDGE_W;
 
   // 位置価値テーブル
   for(let i = 0; i < S*S; i++){
@@ -2826,19 +3398,21 @@ function paranoidMinimax(bd, depth, turn, myGrp, opGrp, alpha, beta){
     return myGrp.includes(turn) ? -9000000 : 9000000;
   }
 
-  // PW スコアで候補を絞り込む（枝刈り効率向上）
-  const maxC = (depth === MM_DEPTH) ? MM_CANDS_ROOT : MM_CANDS_INNER;
+  // PW＋裏返し数で候補を絞り込む（X字マスペナルティ込み・枝刈り効率向上）
+  // ルートは chooseMoveByMinimax 側で管理するため、内部ノードは常に MM_CANDS_INNER
   const candidates = safe
-    .map(m => ({m, pw: PW[m.y*S+m.x]}))
+    .map(m => ({m, pw: PW[m.y*S+m.x] - (isXPos(m.x, m.y, bd) ? 20000 : 0)
+                     + getFlips(bd,m.x,m.y,turn).length*1500}))
     .sort((a,b) => b.pw - a.pw)
-    .slice(0, maxC)
+    .slice(0, MM_CANDS_INNER)
     .map(o => o.m);
 
   const nextT = turn % 4 + 1;
+  let value;
 
   if(myGrp.includes(turn)){
     // 最大化（自チームのターン）
-    let value = -Infinity;
+    value = -Infinity;
     for(const m of candidates){
       const nb = applyMove(bd, m.x, m.y, turn);
       const val = paranoidMinimax(nb, depth-1, nextT, myGrp, opGrp, alpha, beta);
@@ -2846,10 +3420,9 @@ function paranoidMinimax(bd, depth, turn, myGrp, opGrp, alpha, beta){
       if(value > alpha) alpha = value;
       if(alpha >= beta) break; // β カット
     }
-    return value;
   } else {
     // 最小化（相手チームのターン — Paranoid: 全員が最小化）
-    let value = Infinity;
+    value = Infinity;
     for(const m of candidates){
       const nb = applyMove(bd, m.x, m.y, turn);
       const val = paranoidMinimax(nb, depth-1, nextT, myGrp, opGrp, alpha, beta);
@@ -2857,8 +3430,8 @@ function paranoidMinimax(bd, depth, turn, myGrp, opGrp, alpha, beta){
       if(value < beta) beta = value;
       if(alpha >= beta) break; // α カット
     }
-    return value;
   }
+  return value;
 }
 
 function chooseMoveByMinimax(bd, turn, safeFinal){
@@ -2873,18 +3446,44 @@ function chooseMoveByMinimax(bd, turn, safeFinal){
   );
   if(corner) return corner;
 
-  // PW順で候補を絞り、minimax でスコアリング
-  const candidates = [...safeFinal]
-    .sort((a,b) => PW[b.y*S+b.x] - PW[a.y*S+a.x])
-    .slice(0, MM_CANDS_ROOT);
-
-  let best = null, bestScore = -Infinity;
   const nextT = turn % 4 + 1;
+  const empties = bd.reduce((s,v)=>s+(v?0:1),0);
 
-  for(const m of candidates){
-    const nb = applyMove(bd, m.x, m.y, turn);
-    const score = paranoidMinimax(nb, MM_DEPTH-1, nextT, myGrp, opGrp, -Infinity, Infinity);
-    if(score > bestScore){ bestScore = score; best = m; }
+  // ルート候補の初期並び：PW＋裏返し数（X字マスペナルティ込み）
+  const ord = m => PW[m.y*S+m.x] - (isXPos(m.x,m.y,bd)?20000:0)
+                 + getFlips(bd,m.x,m.y,turn).length*1500;
+  let candidates = [...safeFinal].sort((a,b)=>ord(b)-ord(a)).slice(0, MM_CANDS_ROOT);
+
+  // ===== 反復深化（iterative deepening）＋時間予算 =====
+  // 浅い深さから順に深め、予算(ms)を超えたら打ち切る。
+  // 前の深さの評価で best-first に並べ替え→α-β枝刈りが効き深く読める。
+  // 終盤(空きマスが少ない)では深さが空きマス数に達し「読み切り」に近づく。
+  const key = m => m.y*S+m.x;
+  const prefCache = new Map();
+  const prefOf = m => { const k=key(m); if(!prefCache.has(k)) prefCache.set(k, prefBonus(bd,m.x,m.y,turn)); return prefCache.get(k); };
+
+  const deadline = performance.now() + MM_TIME_BUDGET;
+  const maxDepth = Math.min(MM_MAX_DEPTH, Math.max(4, empties));
+  let best = candidates[0], lastScores = null;
+
+  for(let depth = 4; depth <= maxDepth; depth++){
+    if(lastScores){
+      candidates.sort((a,b)=>(lastScores.get(key(b))??-Infinity)-(lastScores.get(key(a))??-Infinity));
+    }
+    const scores = new Map();
+    let curBest=null, curBestScore=-Infinity, evaluated=0, aborted=false;
+    for(const m of candidates){
+      const nb = applyMove(bd, m.x, m.y, turn);
+      const sc = paranoidMinimax(nb, depth-1, nextT, myGrp, opGrp, -Infinity, Infinity) + prefOf(m);
+      scores.set(key(m), sc); evaluated++;
+      if(sc>curBestScore){ curBestScore=sc; curBest=m; }
+      if(performance.now() > deadline){ aborted=true; break; }
+    }
+    // 完了した反復、または2手以上比較できた中断反復のみ採用（中断1手だけは不採用）
+    if(curBest && (!aborted || evaluated>=2)){ best=curBest; lastScores=scores; }
+    if(!aborted) window.__mmDepth = depth; // デバッグ用：完了した最深の深さ
+    if(aborted) break;
+    if(Math.abs(curBestScore) >= 1000000) break; // 必勝/必敗が読めたら打ち切り
   }
 
   return best || safeFinal[0];
@@ -3091,6 +3690,252 @@ function loadLearnedPatterns(){
   }).catch(()=>{ learnedPatterns=[]; });
 }
 loadLearnedPatterns();
+
+// ============================================================
+// ===== お手本ブック（人間の勝ち手から学ぶ imitation book）=====
+// 思想: 強いプレイヤー（人間）が勝った対局の着手を「盤面→着手」の辞書に保存。
+//       AIは自分の番でまずこの辞書を引き、一致すれば即その手を打つ（探索不要＝速い）。
+//       盤面は8通りの回転・反転で正規化するので、1隅で覚えた手が4隅すべてに効く。
+//       角の担当などの固定ルールより前に参照するため、人間の打ち回しがそのまま再生される。
+// ============================================================
+const BOOK_KEY = 'katsube_policy_book_v1';
+let policyBook = {};          // "n|canonicalKey" -> { moves: { "cx,cy": winCount } }
+let currentTrajectory = [];   // 今の対局の {bd, n, x, y} を着手順に記録
+let bookCommitted = false;    // 1ゲーム1回だけ学習を確定させるためのフラグ
+
+// 9x9盤の8対称変換（D4群）。座標(x,y)→変換後(x,y)。
+function _tf(t, x, y){
+  switch(t){
+    case 0: return [x, y];                 // 恒等
+    case 1: return [y, S-1-x];             // 90度回転
+    case 2: return [S-1-x, S-1-y];         // 180度回転
+    case 3: return [S-1-y, x];             // 270度回転
+    case 4: return [S-1-x, y];             // 左右反転
+    case 5: return [x, S-1-y];             // 上下反転
+    case 6: return [y, x];                 // 主対角線反転
+    case 7: return [S-1-y, S-1-x];         // 副対角線反転
+  }
+  return [x, y];
+}
+// 各変換の逆変換（回転90↔270のみ入れ替わり、反転は自分自身が逆）
+const _tfInv = [0, 3, 2, 1, 4, 5, 6, 7];
+
+// 盤面を変換tで写したキー文字列（空=0）
+function transformBoardKey(bd, t){
+  const a = new Array(S*S).fill('0');
+  for(let y=0;y<S;y++) for(let x=0;x<S;x++){
+    const v = bd[y*S+x] || '0';
+    const [nx,ny] = _tf(t, x, y);
+    a[ny*S+nx] = v;
+  }
+  return a.join('');
+}
+// 8変換のうちキー文字列が最小になる「正規形」と、その変換番号を返す
+function canonicalize(bd){
+  let bestKey = null, bestT = 0;
+  for(let t=0;t<8;t++){
+    const k = transformBoardKey(bd, t);
+    if(bestKey===null || k < bestKey){ bestKey = k; bestT = t; }
+  }
+  return { key: bestKey, t: bestT };
+}
+
+// 勝者の1手を辞書に記録（盤面は着手前のもの）
+function recordBook(bd, n, x, y){
+  const { key, t } = canonicalize(bd);
+  const [cx, cy] = _tf(t, x, y);          // 着手を正規形座標へ
+  const k = n + '|' + key;
+  if(!policyBook[k]) policyBook[k] = { moves: {} };
+  const mk = cx + ',' + cy;
+  policyBook[k].moves[mk] = (policyBook[k].moves[mk] || 0) + 1;
+}
+
+// 現局面・手番nに対し、辞書から最も勝ち数の多い手を引いて現盤面座標で返す
+function lookupBook(bd, n){
+  if(!policyBook) return null;
+  const { key, t } = canonicalize(bd);
+  const entry = policyBook[n + '|' + key];
+  if(!entry) return null;
+  let bestM = null, bestC = 0;
+  for(const mk in entry.moves){
+    if(entry.moves[mk] > bestC){ bestC = entry.moves[mk]; bestM = mk; }
+  }
+  if(!bestM) return null;
+  const [cx, cy] = bestM.split(',').map(Number);
+  const [ox, oy] = _tf(_tfInv[t], cx, cy);  // 正規形座標→現盤面座標へ逆変換
+  return { x: ox, y: oy, count: bestC };
+}
+
+// 着手のたびに今の対局の軌跡へ記録（doPlace冒頭・着手前の盤面）
+function recordTrajectoryMove(bd, n, x, y){
+  currentTrajectory.push({ bd: bd.slice(), n, x, y });
+}
+
+function saveBook(){
+  try{ KStorage.set(BOOK_KEY, JSON.stringify(policyBook)); }catch(e){}
+}
+function loadBook(){
+  KStorage.get(BOOK_KEY).then(res=>{
+    if(res){ try{ policyBook = JSON.parse(res.value) || {}; }catch(e){ policyBook = {}; } }
+    console.log('お手本ブック読込:', Object.keys(policyBook).length, '局面');
+  }).catch(()=>{ policyBook = {}; });
+}
+loadBook();
+
+// ゲーム終了時に呼ぶ：人間が勝った対局なら、勝ったチームの手をブックへ確定
+function finalizeGameLearning(winnerN, selfDestructPlayer){
+  if(bookCommitted) return;
+  if(gameMode!=='ai' && gameMode!=='ai-flip') return;
+  if(difficulty==='relax') return; // リラックス（子供向け・弱いAI）は学習対象外
+
+  let winTeam = null;
+  if(selfDestructPlayer!=null){
+    winTeam = SENTE.includes(selfDestructPlayer) ? GOTE : SENTE; // 自滅した側の相手チーム
+  } else if(winnerN && winnerN!=='draw'){
+    winTeam = SENTE.includes(winnerN) ? SENTE : GOTE;
+  } else {
+    return; // 引き分けは学習しない
+  }
+  // 「お手本＝人間の勝ち」なので人間が勝った時だけ学習
+  const humanWon = winTeam.every(k => humanTeam.includes(k));
+  if(!humanWon) return;
+  let added = 0;
+  for(const e of currentTrajectory){
+    if(winTeam.includes(e.n)){
+      recordBook(e.bd, e.n, e.x, e.y);
+      accumulatePreference(e.bd, e.n, e.x, e.y); // 好み学習：手の特徴の傾向を蓄積
+      added++;
+    }
+  }
+  if(added > 0) savePref();
+  if(added > 0){
+    bookCommitted = true;
+    // 局面数が増えすぎたら勝ち数の少ない局面から間引く（上限の目安）
+    const keys = Object.keys(policyBook);
+    if(keys.length > 6000){
+      keys.map(k=>({k, c: Math.max(...Object.values(policyBook[k].moves))}))
+          .sort((a,b)=>a.c-b.c).slice(0, keys.length-6000)
+          .forEach(o=>{ delete policyBook[o.k]; });
+    }
+    saveBook();
+    const total = Object.keys(policyBook).length;
+    console.log('🎓 お手本を' + added + '手 学習（累計 ' + total + ' 局面）');
+    showLearnToast(added, total);
+  }
+}
+
+// 学習結果を画面に数秒だけ表示するトースト（F12不要で確認できる）
+function showLearnToast(added, total){
+  try{
+    let t = document.getElementById('learnToast');
+    if(!t){
+      t = document.createElement('div');
+      t.id = 'learnToast';
+      t.style.cssText = 'position:fixed;left:50%;top:14px;transform:translateX(-50%);'
+        + 'z-index:99999;background:#0a2a1a;border:2px solid #2ecc71;color:#7CFFB0;'
+        + 'font-family:"Noto Sans JP",Arial,sans-serif;font-size:13px;font-weight:700;'
+        + 'padding:10px 16px;border-radius:10px;box-shadow:0 4px 16px #000a;'
+        + 'text-align:center;line-height:1.5;max-width:88vw;pointer-events:none;'
+        + 'transition:opacity 0.5s;opacity:0;';
+      document.body.appendChild(t);
+    }
+    t.innerHTML = tMsg('learnToast',{n:added}) + '<br>'
+      + '<span style="font-size:11px;color:#9fd;">' + tMsg('learnToastSub',{total}) + '</span>';
+    t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>{ t.style.opacity = '0'; }, 4500);
+  }catch(e){}
+}
+
+// ============================================================
+// ===== 好み学習（preference learning）=====
+// あなたの勝ち手が「どんな特徴の手か」を学び、似た局面でも反映する。
+// 完全一致のお手本ブックと違い、毎手の評価へ小さく加算されるので常に効く。
+// ============================================================
+const PREF_KEY = 'katsube_pref_stats_v1';
+let prefStats = { S:{count:0, delta:[0,0,0,0,0,0]}, G:{count:0, delta:[0,0,0,0,0,0]} };
+const PREF_W = 700;        // 好みボーナスの強さ
+const PREF_CLAMP = 3000;   // 加算の絶対値上限（戦術判断を覆さないため）
+
+// 手の特徴ベクトル（すべて0..1）：
+// [裏返し数, 角取り, 外周, 空き角へ向かう, 主色増加, 安全(自色>=3)]
+function moveFeatures(bd, x, y, n){
+  const grp = SENTE.includes(n)?SENTE:GOTE;
+  const nb = applyMove(bd, x, y, n);
+  const flips = getFlips(bd, x, y, n).length;
+  const CORN = [[0,0],[0,8],[8,0],[8,8]];
+  const takesCorner = CORN.some(([cx,cy])=>cx===x&&cy===y) ? 1 : 0;
+  const onEdge = (x===0||x===8||y===0||y===8) ? 1 : 0;
+  let towardCorner = 0;
+  for(const [cx,cy] of CORN){
+    if(bd[cy*S+cx]) continue;
+    const d = Math.abs(x-cx)+Math.abs(y-cy);
+    const onLine = (x===cx || y===cy || Math.abs(x-cx)===Math.abs(y-cy));
+    if(onLine && d<=4){ towardCorner = 1; break; }
+  }
+  const beforeDom = Math.max(...grp.map(k=>countC(bd,k)));
+  const afterDom  = Math.max(...grp.map(k=>countC(nb,k)));
+  const raisesDom = afterDom>beforeDom ? 1 : 0;
+  const minOwn = Math.min(...grp.map(k=>countC(nb,k)));
+  const safe3 = minOwn>=3 ? 1 : 0;
+  const flipN = Math.min(flips,6)/6;
+  return [flipN, takesCorner, onEdge, towardCorner, raisesDom, safe3];
+}
+
+// 好み重み（delta/count）。正＝人間がその特徴を好む傾向。データが少ない間は無効。
+function prefWeights(team){
+  const st = prefStats[team];
+  if(!st || st.count < 5) return null;
+  return st.delta.map(d => d/st.count);
+}
+
+// 候補手の好みボーナス（探索のルートスコアへ加算）
+function prefBonus(bd, x, y, n){
+  const team = SENTE.includes(n)?'S':'G';
+  const w = prefWeights(team);
+  if(!w) return 0;
+  const f = moveFeatures(bd, x, y, n);
+  let s = 0;
+  for(let i=0;i<f.length;i++) s += w[i]*f[i];
+  s *= PREF_W;
+  return Math.max(-PREF_CLAMP, Math.min(PREF_CLAMP, s));
+}
+
+// 勝った人間の各手について、選んだ手と「その局面の安全合法手の平均特徴」の差を蓄積
+function accumulatePreference(bd, n, x, y){
+  const team = SENTE.includes(n)?'S':'G';
+  const legal = getSafeLegal(bd, n);
+  if(legal.length < 2) return; // 選択の余地がなければ学習しない
+  const chosen = moveFeatures(bd, x, y, n);
+  const mean = [0,0,0,0,0,0];
+  for(const m of legal){
+    const fm = moveFeatures(bd, m.x, m.y, n);
+    for(let i=0;i<mean.length;i++) mean[i]+=fm[i];
+  }
+  for(let i=0;i<mean.length;i++) mean[i]/=legal.length;
+  const st = prefStats[team];
+  for(let i=0;i<chosen.length;i++) st.delta[i] += (chosen[i]-mean[i]);
+  st.count++;
+}
+
+function savePref(){ try{ KStorage.set(PREF_KEY, JSON.stringify(prefStats)); }catch(e){} }
+function loadPref(){
+  KStorage.get(PREF_KEY).then(res=>{
+    if(res){ try{ const p=JSON.parse(res.value); if(p&&p.S&&p.G) prefStats=p; }catch(e){} }
+  }).catch(()=>{});
+}
+loadPref();
+window.prefStats = ()=>prefStats;
+window.prefView = ()=>({
+  S: prefWeights('S'), G: prefWeights('G'),
+  labels:['裏返し数','角取り','外周','空き角へ','主色増加','安全']
+});
+
+// デバッグ用ヘルパー（F12コンソールから利用可）
+window.policyBook = policyBook;
+window.bookStats = ()=>({ positions: Object.keys(policyBook).length });
+window.resetBook = ()=>{ policyBook = {}; window.policyBook = policyBook; saveBook(); console.log('お手本ブックを消去しました'); };
+
 // ===== ログエクスポート =====
 function exportLog(){
   const data={
@@ -3114,13 +3959,60 @@ function exportLog(){
   console.log(json);
 }
 
+// ===== 対局まるごと出力（AI解析用）=====
+// その対局の全局面（着手前の盤面）＋着手＋勝敗を1つのJSONに。
+// これを共有してもらえれば、AIがどの手でしくじったかをピンポイントで解析できる。
+function exportGame(){
+  const enc = bd => bd.map(v => v || '0').join(''); // 盤面を81文字に圧縮
+  const counts = [1,2,3,4].map(k => board.filter(v=>v===String(k)).length);
+  const maxC = Math.max(...counts);
+  const winColors = [1,2,3,4].filter(k => counts[k-1]===maxC);
+  const data = {
+    v: 'game-v1',
+    date: new Date().toLocaleString('ja-JP'),
+    humanTeam,                       // 人間の担当色 [1,3] か [2,4]
+    finalCounts: {1:counts[0],2:counts[1],3:counts[2],4:counts[3]},
+    winColors,                       // 最多色（＝勝者）
+    moves: currentTrajectory.map(e => ({ n:e.n, x:e.x, y:e.y, b:enc(e.bd) }))
+  };
+  const json = JSON.stringify(data);
+  console.log('%c=== 対局データを保存します ===','color:#2ecc71;font-weight:bold');
+  console.log(json);
+  // ファイルとして保存（ダウンロード）。file://でも動作する確実な方法。
+  let saved=false;
+  try{
+    const stamp = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'katsube_game_'+stamp+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    saved=true;
+  }catch(e){ console.log('保存エラー:',e); }
+  // 画面にも通知
+  try{
+    showLearnToast(0,0);
+    const t=document.getElementById('learnToast');
+    if(t){ t.innerHTML = saved
+      ? '💾 対局データを保存しました<br><span style="font-size:11px;color:#9fd;">ダウンロードフォルダの katsube_game_….json</span>'
+      : '⚠️ 保存に失敗しました'; t.style.opacity='1'; }
+  }catch(e){}
+  return data;
+}
+window.exportGame = exportGame;
+
 // UI切替
 function showMenuScreen(){
   phase='menu'; gameMode=null; aiThinking=false;
   clearHints(); board=Array(S*S).fill('');
   renderBoard(board);
+  // トレーニング中でなければ進捗バーを隠す
+  if(!trainActive){ const b=document.getElementById('trainProgressBar'); if(b) b.style.display='none'; }
   document.getElementById('difficultyMenu').style.display='';
   document.getElementById('subModeMenu').style.display='none';
+  { const tm=document.getElementById('timeMenu'); if(tm) tm.style.display='none'; }
+  clockStop(); compMode=false; updateClockUI();
   orderArea.classList.remove('show');
   gameControls.classList.remove('show');
   scoreBar.classList.remove('show');
@@ -3144,6 +4036,7 @@ function showMenuScreen(){
 }
 
 function showOrderScreen(){
+  stopDemo(); // デモ・オーバーレイを停止してから選択画面へ
   phase='order';
   document.getElementById('difficultyMenu').style.display='none';
   document.getElementById('subModeMenu').style.display='none';
@@ -3159,6 +4052,10 @@ function startGame(mode,human){
   phase='setup'; gameEnded=false;
   reviveQueue=[]; passCount=0; moveHistory=[]; resetPending();
   humanHasTakenCorner=false;
+  aiCornerPlayer=null;
+  currentTrajectory=[]; bookCommitted=false; // お手本ブック：対局ごとの軌跡をリセット
+  forcedExplainDone=false;
+  { const _bm=document.getElementById('boardMsg'); if(_bm) _bm.classList.remove('win-msg'); } // 前局の大文字スタイル残留を防止
   // ゲームログ初期化
   gameLog={moves:[],corners:[],aiCorners:[],wipeouts:[],startTime:Date.now(),mode:gameMode,humanSide:human.includes(1)?'sente':'gote'};
   board=Array(S*S).fill(''); aiThinking=false;
@@ -3191,7 +4088,7 @@ function startGame(mode,human){
     document.getElementById('btnRematch').style.display='';
     document.getElementById('btnRematch').style.opacity='0.3';
     document.getElementById('btnRematch').style.pointerEvents='none';
-    document.getElementById('btnRematch').textContent=lang==='en'?'Rematch':'リマッチ';
+    document.getElementById('btnRematch').textContent=tMsg('rematch');
     mirrorWrap.classList.remove('show');
     // vs-flip: 後手が下側→スコア表示を入れ替え
     const topRow = document.getElementById('topScoreRow');
@@ -3238,6 +4135,13 @@ function startGame(mode,human){
   }
 
   buildTeamBar(mode,human);
+  // 競技モード：チェスクロックの初期化（上下パネルがどちらの側かをスコア表示に合わせる）
+  {
+    const topIsSente = (mode==='vs-flip') || ((mode==='ai'||mode==='ai-flip') && human.includes(2));
+    clockTopSide = topIsSente ? 'sente' : 'gote';
+    clockBotSide = topIsSente ? 'gote'  : 'sente';
+    if(compMode){ clockInit(); } else { clockStop(); updateClockUI(); }
+  }
   board[4*S+4]='1';
   renderBoard(board);
   saveBoardState();
@@ -3295,7 +4199,7 @@ function getSetup4Moves(bd){
 async function runSetup(){
   if(turn===2){
     const opts=[{x:4,y:3},{x:4,y:5},{x:3,y:4},{x:5,y:4}];
-    showMsg(lang==='en'?'Player 2: Place on one of the 4 squares around center.':M('2番(後手)：中央の上下左右4マスのいずれかに置いてください','2ばん（ごて）：まんなかの　うえ・した・ひだり・みぎの　4つのマスの　どこかに　おいてください'),'white');
+    showMsg(tMsg('setup2'),'white');
     if(isAiTurn(2)){
       await wait(800);
       const oi=Math.floor(Math.random()*opts.length); doSetupPlace(opts[oi].x,opts[oi].y,2);
@@ -3305,22 +4209,22 @@ async function runSetup(){
     }
   } else if(turn===3){
     const valid=getSetup3Moves(board);
-    showMsg(lang==='en'?'Player 3: Place where you can form a 2×2 square.':M('3番(先手)：2×2を作れるマスに置いてください','3ばん（せんて）：2×2を　つくれる　マスに　おいてください'),'white');
+    showMsg(tMsg('setup3'),'white');
     if(isAiTurn(3)){
       await wait(800);
       if(!valid.length){resetSetup();return;}
       const c=valid[Math.floor(Math.random()*valid.length)];
       doSetupPlace(c.x,c.y,3);
     } else {
-      if(!valid.length){showMsg(lang==='en'?'No valid square for Player 3. Resetting...':M('3番を置けるマスがありません。やり直します','3ばんを　おける　マスが　ありません。やりなおします'),'yellow');await wait(1500);resetSetup();return;}
+      if(!valid.length){showMsg(tMsg('setup3none'),'yellow');await wait(1500);resetSetup();return;}
       showHints(valid,[],
         (x,y)=>{clearHints();doSetupPlace(x,y,3);},()=>{});
     }
   } else if(turn===4){
-    showMsg(lang==='en'?'Player 4 completes the 2×2 square...':M('4番(後手)が2×2を完成させます…','4ばん（ごて）が　2×2を　かんせいさせます…'),'white');
+    showMsg(tMsg('setup4'),'white');
     await wait(800);
     const valid=getSetup4Moves(board);
-    if(!valid.length){showMsg(lang==='en'?'No valid square for Player 4. Resetting...':M('4番を置けるマスがありません。やり直します','4ばんを　おける　マスが　ありません。やりなおします'),'yellow');await wait(1500);resetSetup();return;}
+    if(!valid.length){showMsg(tMsg('setup4none'),'yellow');await wait(1500);resetSetup();return;}
     doSetupPlace(valid[0].x,valid[0].y,4);
   }
 }
@@ -3336,7 +4240,7 @@ function doSetupPlace(x,y,n){
     phase='play';turn=1;
     renderBoard(board);
     updateTurnChips(board);
-    showMsg(lang==='en'?'2×2 complete! Game starts!':M('2×2の正方形が完成！ゲームスタート','2×2の　しかくが　かんせい！　ゲームスタート'),'white');
+    showMsg(tMsg('setupDone'),'white');
     setTimeout(()=>runTurn(),1200);
   } else {
     turn=n+1;
@@ -3357,11 +4261,12 @@ async function runTurn(){
   }
   updateScores(board);
   updateTurnChips(board);
+  clockOnTurnStart(turn); // 競技モード：この手番の側の時計を作動（AIの番は停止）
   const legal=getLegal(board,turn);
   const safe=getSafeLegal(board,turn);
   if(legal.length===0){
     passCount++;
-    showMsg(lang==='en'?`${NAMES[turn]}: No moves available. Pass.`:M(`${NAMES[turn]} は置ける場所がないためパスします`,`${NAMES[turn]}は　おける　ばしょが　ないため　パスします`),'yellow');
+    showMsg(tMsg('noMovesPass',{name:NAMES[turn]}),'yellow');
     await wait(1400);
     if(passCount>=4){endGame();return;}
     advanceTurn();return;
@@ -3372,26 +4277,28 @@ async function runTurn(){
   if(safe.length===0&&legal.length>0){
     const isHuman=!isAiTurn(turn);
     if(isHuman){
-      // 人間の場合：そのマスしかない・置いたら自滅を説明してから実行
-      const suicideMsg=lang==='en'
-        ?`${NAMES[turn]}: Self-Out — only move causes own piece to reach 0. Instant loss rule applies!`
-        :M(`${NAMES[turn]}：置ける手がこれしかありません。置くと自分の駒が0個になり強制アウト（即負け）のルールです`,
-           `${NAMES[turn]}：ここしか おけません。おくと 0こに なり きょうせい アウト！`);
+      // 人間の強制アウト：①空マスを点滅で見せる→②説明→③最後にそのマスを埋めて自色消滅を目撃させる
+      const fm = legal[0];
+      // どの色が0になるか（その色を主役に説明する）
+      const nb0 = applyMove(board, fm.x, fm.y, turn);
+      const myTeam = SENTE.includes(turn)?SENTE:GOTE;
+      let wipedN = turn;
+      for(const t of myTeam){ if(countC(board,t)>0 && countC(nb0,t)===0){ wipedN=t; break; } }
+      // ① 置ける唯一のマス（まだ空）を点滅ハイライト
+      const suicideMsg=tMsg('suicideHint',{name:NAMES[turn]});
+      { const _bm=document.getElementById('boardMsg'); if(_bm) _bm.classList.remove('win-msg'); } // 説明は通常サイズで
       showMsg(suicideMsg,'yellow',true);
-      // 自滅マスをハイライトして見せる
       legal.forEach(m=>{ if(cells[m.y]) cells[m.y][m.x].classList.add('hint-suicide'); });
-      await wait(3000);
-      clearHints();
-      // 最初の合法手に強制配置
-      await doPlace(legal[0].x, legal[0].y, turn);
+      await wait(3200);
+      // ② 空マスのまま丁寧に説明
+      await explainForcedOut(wipedN);
+      // ③ クライマックス：その空マスを埋める→自分の色が0になり強制アウト
+      forcedExplainDone = true;
+      await doPlace(fm.x, fm.y, turn);
       return;
     } else {
-      // AIの場合：強制自滅
-      showMsg(lang==='en'
-        ?`${NAMES[turn]}: No safe moves — Self-Out!`
-        :M(`${NAMES[turn]}：安全な手がなく強制アウトです`,`${NAMES[turn]}：あんぜんな マスが なく きょうせい アウトです`)
-      ,'yellow',true);
-      await wait(2000);
+      // AIの場合：強制自滅 → 丁寧に説明してから終了
+      await explainForcedOut(turn);
       endGame(turn); return;
     }
   }
@@ -3411,7 +4318,7 @@ function isAiTurn(n){
 function doHumanTurn(legal,safe){
   const suicideMoves=legal.filter(m=>!safe.find(s=>s.x===m.x&&s.y===m.y));
   const color=SENTE.includes(turn)?'#88ddaa':'#dd8888';
-  showMsg(lang==='en'?`${NAMES[turn]}: Tap a square to place.`:M(`${NAMES[turn]}：置くマスをタップしてください`,`${NAMES[turn]}：おく　マスを　タップしてください`),color);
+  showMsg(tMsg('tapToPlace',{name:NAMES[turn]}),color);
   if(slowMode){
     // ゆっくりモード：緑・オレンジでヒント表示
     showHints(safe,suicideMoves,
@@ -3419,10 +4326,7 @@ function doHumanTurn(legal,safe){
         clearHints();await doPlace(x,y,turn);advanceTurn();
       },
       async(x,y)=>{
-        const msgJa='強制アウト！相手を0にするのはOKですが、自分の駒が0になると即負けです。別のマスを選んでください。';
-        const msgJaSlow='きょうせい アウト！あいての こまを 0こに するのは OK。でも じぶんの こまが 0こに なると そくまけです。べつの マスを！';
-        const msgEn='Self-Out! Wiping opponents is OK — but wiping your own pieces means instant loss. Choose another square.';
-        showMsg(lang==='en'?msgEn:M(msgJa,msgJaSlow),'yellow');
+        showMsg(tMsg('selfOutChoose'),'yellow');
         await wait(3500);doHumanTurn(legal,safe);
       }
     );
@@ -3438,13 +4342,10 @@ function doHumanTurn(legal,safe){
         if(isSafe){
           clearHints();await doPlace(x,y,turn);advanceTurn();
         } else if(isSuicide){
-          const msgJa='強制アウト！相手を0にするのはOKですが、自分の駒が0になると即負けです。別のマスを選んでください。';
-          const msgJaSlow='きょうせい アウト！あいての こまを 0こに するのは OK。でも じぶんの こまが 0こに なると そくまけです。べつの マスを！';
-          const msgEn='Self-Out! Wiping opponents is OK — but wiping your own pieces means instant loss. Choose another square.';
-          showMsg(lang==='en'?msgEn:M(msgJa,msgJaSlow),'yellow');
+          showMsg(tMsg('selfOutChoose'),'yellow');
           await wait(3500);doHumanTurn(legal,safe);
         } else {
-          showMsg(lang==='en'?'Cannot place there.':'そこには置けません','yellow');
+          showMsg(tMsg('cannotPlace'),'yellow');
           await wait(1000);doHumanTurn(legal,safe);
         }
       };
@@ -3455,40 +4356,109 @@ function doHumanTurn(legal,safe){
 
 async function doAiTurn(legal,safe){
   aiThinking=true;
+  // ★序盤の角献上トラップ回避（考案者指定ルール）：
+  //   1巡目のAI・2番は、相手の3を0にする手を避ける。3を消すと相手が角際のX字マス(例[1,1])に
+  //   2個自由復活でき、1-4の対角線で角を取られるため。3を消さなければ相手の3は「挟める所」しか
+  //   置けず、角を取れない。1番が4を0にしていても2番は3を消さない。1巡目(2番の最初の手)のみ適用。
+  {
+    const filled = board.filter(v=>v).length;
+    if(turn===2 && filled<=6){
+      const noWipe3 = safe.filter(m=>{
+        const nb=applyMove(board,m.x,m.y,2);
+        return !(countC(board,3)>0 && countC(nb,3)===0);
+      });
+      if(noWipe3.length>0) safe = noWipe3; // 3を消さない手が1つでもあればそれだけに絞る
+    }
+  }
   const color=SENTE.includes(turn)?'#88ddaa':'#dd8888';
-  showMsg(lang==='en'?`${NAMES[turn]} is thinking...`:M(`${NAMES[turn]} が考えています…`,`${NAMES[turn]}が　かんがえています…`),color);
-  await wait(400+Math.random()*400);
+  showMsg(tMsg('thinking',{name:NAMES[turn]}),color);
+  await wait(120+Math.random()*120); // 見せかけの待ちは最小限（実際の思考は探索が担う）
 
   // safe===0は runTurn で処理済みのためここには来ないが念のため残す
   if(safe.length===0&&legal.length>0){
-    showMsg(lang==='en'?`${NAMES[turn]} is Out!`:M(
-      `${NAMES[turn]} が アウト！`,
-      `${NAMES[turn]}が　アウト！`
-    ),'yellow',true);
     aiThinking=false;
-    await wait(3000);endGame(turn);return;
+    await explainForcedOut(turn); endGame(turn); return;
   }
 
-  // ===== 【最優先】自分が角を取れるなら即取る =====
+  // ===== 【最優先0】お手本ブック：人間の勝ち手を再生（探索不要＝即着手） =====
+  // リラックスモードは初心者向けに易しく保つため使わない
+  if(difficulty!=='relax'){
+    const bm = lookupBook(board, turn);
+    if(bm){
+      const ok = safe.find(m=>m.x===bm.x && m.y===bm.y);
+      if(ok){
+        showMsg(tMsg('learnedMove',{name:NAMES[turn]}),color);
+        await wait(250);
+        await doPlace(bm.x,bm.y,turn);
+        aiThinking=false;advanceTurn();return;
+      }
+    }
+  }
+
+  // ===== 【最優先】角を取る（戦略ルール付き） =====
   const CORNERS=[[0,0],[0,8],[8,0],[8,8]];
   const cornerMove=safe.find(m=>CORNERS.some(([cx,cy])=>cx===m.x&&cy===m.y));
+
   // リラックスモード: 人間が先に角を取るまでAIは角を取らない
   const humanHasCorner = gameLog && gameLog.corners && gameLog.corners.some(c=>humanTeam.includes(c.n));
   const relaxCornerOk = (difficulty !== 'relax') || humanHasCorner;
-  if(cornerMove && relaxCornerOk){
+
+  // AIチームが現在持っている角の数と担当プレイヤーを確認
+  const myGrpCorner = SENTE.includes(turn)?SENTE:GOTE;
+  const aiCornersNow = CORNERS.filter(([cx,cy])=>myGrpCorner.includes(Number(board[cy*S+cx])));
+  const aiCornerCount = aiCornersNow.length;
+
+  // 角担当色の決定・引き継ぎ
+  // ①まだ未決定なら今のプレイヤーを担当に設定
+  // ②パートナーがすでに角を持っていたらそちらを担当に設定
+  if(aiCornerPlayer===null){
+    const partnerN = myGrpCorner.find(k=>k!==turn);
+    const partnerHasCorner = CORNERS.some(([cx,cy])=>board[cy*S+cx]==String(partnerN));
+    if(partnerHasCorner) aiCornerPlayer=partnerN;
+    // 担当未定かつ角を取れるなら今のプレイヤーが担当になる
+  }
+
+  // 角を取っていいかの判定
+  let canTakeCorner = cornerMove && relaxCornerOk;
+  if(canTakeCorner){
+    // ルール1: AIチームが2角以上持っていたら積極的には追わない
+    //         ただし相手が今すぐ角を取れる緊急時は例外
+    if(aiCornerCount >= 2){
+      const opGrpC = SENTE.includes(turn)?GOTE:SENTE;
+      const opCanTakeCorner = opGrpC.some(op=>
+        CORNERS.some(([cx,cy])=>getSafeLegal(board,op).some(m=>m.x===cx&&m.y===cy))
+      );
+      canTakeCorner = opCanTakeCorner; // 相手が取れる時だけ阻止のため取る
+    }
+
+    // ルール2: 担当色が決まっていて自分が担当でない場合は取らない
+    //         ただし担当プレイヤーがその角を取れない時は代わりに取ってよい
+    if(canTakeCorner && aiCornerPlayer!==null && aiCornerPlayer!==turn){
+      // 担当プレイヤーが同じ角を取れるか確認
+      const partnerCanTake = CORNERS.some(([cx,cy])=>
+        getSafeLegal(board,aiCornerPlayer).some(m=>m.x===cx&&m.y===cy)
+      );
+      canTakeCorner = !partnerCanTake; // 担当が取れるなら譲る
+    }
+  }
+
+  if(canTakeCorner){
+    // 担当色を確定
+    if(aiCornerPlayer===null) aiCornerPlayer=turn;
     const color2=SENTE.includes(turn)?'#88ddaa':'#dd8888';
-    showMsg(lang==='en'?`${NAMES[turn]} takes a corner!`:M(`${NAMES[turn]} が角を取りました！`,`${NAMES[turn]}が　かどを　とりました！`),color2);
+    showMsg(tMsg('takesCorner',{name:NAMES[turn]}),color2);
     await wait(300);
     await doPlace(cornerMove.x,cornerMove.y,turn);
     gameLog.aiCorners.push({x:cornerMove.x, y:cornerMove.y, n:turn, step:gameLog.moves.length, boardSnap:[...board]});
     aiThinking=false;advanceTurn();return;
   }
 
-  // ===== 【第2優先】直前に自分のチームが角を取った→即座に外周を固める =====
+  // ===== 【第2優先】角を取った後は外周を固める（リラックスのみ。中級は探索に委ねる）=====
   const myGrpC=SENTE.includes(turn)?SENTE:GOTE;
-  for(const [cx,cy] of CORNERS){
+  if(difficulty==='relax') for(const [cx,cy] of CORNERS){
     const cv=board[cy*S+cx];
     if(!cv||!myGrpC.includes(Number(cv))) continue;
+    // 固めは担当色以外のターンでも実行（チーム全体で固める）
     const dx=cx===0?1:-1, dy=cy===0?1:-1;
 
     // 外周の連続自駒数を計算（自分が取った角から伸びているか確認）
@@ -3529,9 +4499,7 @@ async function doAiTurn(legal,safe){
         })){ safe2=false; break; }
       }
       if(safe2){
-        showMsg(lang==='en'?`${NAMES[turn]} consolidates corner!`:M(
-          `${NAMES[turn]} が角を固めました！`,`${NAMES[turn]}が　かどを　かためました！`
-        ),color);
+        showMsg(tMsg('consolidatesCorner',{name:NAMES[turn]}),color);
         await wait(300);
         await doPlace(nx,ny,turn);
         aiThinking=false;advanceTurn();return;
@@ -3543,9 +4511,7 @@ async function doAiTurn(legal,safe){
       if(board[ny*S+nx]) continue;
       const fix=safe.find(m=>m.x===nx&&m.y===ny);
       if(fix){
-        showMsg(lang==='en'?`${NAMES[turn]} secures edge!`:M(
-          `${NAMES[turn]} が外周を確保しました！`,`${NAMES[turn]}が　そとわくを　かくほしました！`
-        ),color);
+        showMsg(tMsg('securesEdge',{name:NAMES[turn]}),color);
         await wait(300);
         await doPlace(nx,ny,turn);
         aiThinking=false;advanceTurn();return;
@@ -3561,20 +4527,42 @@ async function doAiTurn(legal,safe){
   const RED_SQ=[[1,1],[7,1],[1,7],[7,7]];
 
   function hasPartnerOnDiag(mx, my){
-    // 赤マスに対応する角を特定
+    // X字マスへの着手を許可するか判定
+    // 条件：① 対応する角が既にAI所有 OR
+    //        ② パートナーが対角線上に存在 AND パートナーが次のターンまで生き残れる
     const corner=[[0,0],[8,0],[0,8],[8,8]].find(([cx,cy])=>
       Math.abs(mx-cx)===1&&Math.abs(my-cy)===1
     );
     if(!corner) return true;
     const [cx,cy]=corner;
+
+    // ① 角が既にAIチームの駒なら安全
+    const cornerV=Number(board[cy*S+cx]);
+    if(myGrp2.includes(cornerV)) return true;
+
+    // ② パートナーが対角線上に存在するか
     const dx=cx===0?1:-1, dy=cy===0?1:-1;
+    let partnerNum=null;
     for(let step=2; step<=6; step++){
       const tx=cx+dx*step, ty=cy+dy*step;
       if(tx<0||ty<0||tx>=S||ty>=S) break;
       const v=Number(board[ty*S+tx]);
-      if(myGrp2.includes(v)&&v!==turn) return true;
+      if(myGrp2.includes(v)&&v!==turn){ partnerNum=v; break; }
     }
-    return false;
+    if(partnerNum===null) return false; // パートナーが対角線にいない
+
+    // ③ パートナーが次のターンまで生き残れるか（駒数が十分か）
+    const partnerCount=countC(board, partnerNum);
+    if(partnerCount <= 4) return false; // 4個以下は次のターンで消される危険
+
+    // ④ 相手が角を即座に取れる状態でないか確認
+    const opGrpX=SENTE.includes(turn)?GOTE:SENTE;
+    for(const op of opGrpX){
+      const opMoves=getSafeLegal(board, op);
+      if(opMoves.some(m=>m.x===cx&&m.y===cy)) return false; // 相手が今すぐ角を取れる
+    }
+
+    return true; // 全条件クリア
   }
 
   // 【孤立チェック】外周に1マス空けて自駒が並ぶ危険配置を除外
@@ -3839,24 +4827,21 @@ async function doAiTurn(legal,safe){
   const safeNoAmbush = safeFiltered.filter(m=>!isEdgeAmbushDanger(m.x,m.y));
   const safeFinal = safeNoAmbush.length>0 ? safeNoAmbush : safeFiltered;
 
-  // 【最優先】赤マスに相手2駒が揃っている→即座に対処
+  // 【最優先】赤マスに相手2駒が揃っている→即座に対処（リラックスのみ。中級は探索に委ねる）
   const redDanger = redSquareDanger(board);
-  if(redDanger){
+  if(difficulty==='relax' && redDanger){
     const {cx,cy,rx,ry,dx,dy} = redDanger;
     const result = findBestDisrupt(board, safeFinal, cx, cy, dx, dy);
     if(result){
-      showMsg(lang==='en'?`${NAMES[turn]} ${result.reason}!`:M(
-        `${NAMES[turn]} が${result.reason}！`,
-        `${NAMES[turn]}が　${result.reason}！`
-      ),color);
+      showMsg(tMsg('reasonAct',{name:NAMES[turn],act:tReason(result.reason)}),color);
       await wait(300);
       await doPlace(result.move.x,result.move.y,turn);
       aiThinking=false;advanceTurn();return;
     }
   }
 
-  // 【第2優先】対角線・外周に相手パートナーが並んでいる
-  for(const [cx,cy] of CORNERS){
+  // 【第2優先】対角線・外周に相手パートナーが並んでいる（リラックスのみ。中級は探索に委ねる）
+  if(difficulty==='relax') for(const [cx,cy] of CORNERS){
     if(board[cy*S+cx]) continue;
     const diagDanger = opDiagDanger(board, cx, cy);
     const edgeDanger = opEdgeDanger(board, cx, cy);
@@ -3867,10 +4852,7 @@ async function doAiTurn(legal,safe){
     if(diagDanger){
       const result = findBestDisrupt(board, safeFinal, cx, cy, dx, dy);
       if(result){
-        showMsg(lang==='en'?`${NAMES[turn]} ${result.reason}!`:M(
-          `${NAMES[turn]} が${result.reason}！`,
-          `${NAMES[turn]}が　${result.reason}！`
-        ),color);
+        showMsg(tMsg('reasonAct',{name:NAMES[turn],act:tReason(result.reason)}),color);
         await wait(300);
         await doPlace(result.move.x,result.move.y,turn);
         aiThinking=false;advanceTurn();return;
@@ -3881,7 +4863,7 @@ async function doAiTurn(legal,safe){
       // 外周上の相手駒を挟む、または外周への経路をブロック
       const block=safe.find(m=>m.x===cx&&m.y===cy);
       if(block){
-        showMsg(lang==='en'?`${NAMES[turn]} blocks corner!`:M(`${NAMES[turn]} が角を防ぎました！`,`${NAMES[turn]}が　かどを　ふせぎました！`),color);
+        showMsg(tMsg('blocksCorner',{name:NAMES[turn]}),color);
         await wait(300);
         await doPlace(block.x,block.y,turn);
         aiThinking=false;advanceTurn();return;
@@ -3907,9 +4889,7 @@ async function doAiTurn(legal,safe){
           return getSafeLegal(nb2, turn).some(mv=>mv.x===targetX&&mv.y===targetY);
         });
         if(removeObstacle){
-          showMsg(lang==='en'?`${NAMES[turn]} clears the path!`:M(
-            `${NAMES[turn]} が経路を開きました！`,`${NAMES[turn]}が　けいろを　ひらきました！`
-          ),color);
+          showMsg(tMsg('clearsPath',{name:NAMES[turn]}),color);
           await wait(300);
           await doPlace(removeObstacle.x,removeObstacle.y,turn);
           aiThinking=false;advanceTurn();return;
@@ -3928,9 +4908,7 @@ async function doAiTurn(legal,safe){
           return getSafeLegal(nb2, turn).some(mv=>mv.x===targetX&&mv.y===targetY);
         });
         if(removeObstacle){
-          showMsg(lang==='en'?`${NAMES[turn]} clears the path!`:M(
-            `${NAMES[turn]} が経路を開きました！`,`${NAMES[turn]}が　けいろを　ひらきました！`
-          ),color);
+          showMsg(tMsg('clearsPath',{name:NAMES[turn]}),color);
           await wait(300);
           await doPlace(removeObstacle.x,removeObstacle.y,turn);
           aiThinking=false;advanceTurn();return;
@@ -3943,7 +4921,7 @@ async function doAiTurn(legal,safe){
         return opGrp2.some(op=>countC(nb2,op)<countC(board,op));
       });
       if(disruptEdge){
-        showMsg(lang==='en'?`${NAMES[turn]} disrupts edge!`:M(`${NAMES[turn]} が外周を崩しました！`,`${NAMES[turn]}が　そとわくを　くずしました！`),color);
+        showMsg(tMsg('disruptsEdge',{name:NAMES[turn]}),color);
         await wait(300);
         await doPlace(disruptEdge.x,disruptEdge.y,turn);
         aiThinking=false;advanceTurn();return;
@@ -3954,11 +4932,48 @@ async function doAiTurn(legal,safe){
         if(!isEdgeAmbushDanger(m.x,m.y)) continue; // 安全な手はスキップ
         const waitMove=findAmbushWait(m.x,m.y);
         if(waitMove){
-          showMsg(lang==='en'?`${NAMES[turn]} sets an ambush!`:M(
-            `${NAMES[turn]} が待ち伏せしました！`,`${NAMES[turn]}が　まちぶせしました！`
-          ),color);
+          showMsg(tMsg('setsAmbush',{name:NAMES[turn]}),color);
           await wait(300);
           await doPlace(waitMove.x,waitMove.y,turn);
+          aiThinking=false;advanceTurn();return;
+        }
+      }
+    }
+  }
+
+  // ★中級・競技：角フォーク防御（考案者要望）。
+  //   Phase9で対角線の角防御をリラックス限定にしたが、ミニマックスが「1本の対角線で両端の角を同時に狙う
+  //   フォーク」を読み切れず角を奪われる事例を確認（[7,1]に置いて[8,0]と思わせ[0,8]を取る陽動）。
+  //   中級でも『相手が2手以内に取れる角』があれば findBestDisrupt で
+  //   ①自分が先取り(テンポ) → ②③対角線を分断(共有対角線を崩せば両端の角を同時防御) → ④経路ブロック。
+  if(difficulty!=='relax'){
+    // 相手が角(cx,cy)を取れるまでの最短手数（1 or 2、不可なら0）＝真の切迫度。
+    const oppCornerSoon=(bd,cx,cy)=>{
+      for(const op of opGrp2) if(getSafeLegal(bd,op).some(m=>m.x===cx&&m.y===cy)) return 1; // 1手
+      for(const op of opGrp2){
+        for(const m of getSafeLegal(bd,op)){
+          const nb=applyMove(bd,m.x,m.y,op);
+          for(const op2 of opGrp2) if(getSafeLegal(nb,op2).some(mv=>mv.x===cx&&mv.y===cy)) return 2; // 2手
+        }
+      }
+      return 0;
+    };
+    // 相手が2手以内に実際に取れる角だけを対象（真の切迫脅威のみ＝過剰防御を排除）。近い角から。
+    const ranked = CORNERS.filter(([cx,cy])=>!board[cy*S+cx])
+      .map(([cx,cy])=>({cx,cy,soon:oppCornerSoon(board,cx,cy)}))
+      .filter(o=>o.soon>0)
+      .sort((a,b)=>a.soon-b.soon);
+    for(const {cx,cy} of ranked){
+      const dx=cx===0?1:-1, dy=cy===0?1:-1;
+      const result = findBestDisrupt(board, safeFinal, cx, cy, dx, dy);
+      if(result){
+        // ★外科ガード：その手で本当に脅威が消える(相手が2手以内に取れなくなる)時だけ実行。
+        //   フォーク等で消せないなら無駄手＝棋力低下なので通常の探索に委ねる。
+        const nb=applyMove(board,result.move.x,result.move.y,turn);
+        if(oppCornerSoon(nb,cx,cy)===0){
+          showMsg(tMsg('reasonAct',{name:NAMES[turn],act:tReason(result.reason)}),color);
+          await wait(200);
+          await doPlace(result.move.x,result.move.y,turn);
           aiThinking=false;advanceTurn();return;
         }
       }
@@ -3971,12 +4986,39 @@ async function doAiTurn(legal,safe){
 }
 
 async function doPlace(x,y,n){
+  clockOnMove(); // 競技モード：着手した側の時計を停止（経過分を確定）
   saveBoardState();
+  recordTrajectoryMove(board, n, x, y); // お手本ブック：着手前の盤面と手を軌跡に記録
   const before=[1,2,3,4].map(k=>countC(board,k));
   // 裏返し枚数はboard更新前に計算
   const flipsBeforeUpdate=getFlips(board,x,y,n);
+  // 【ルール検査】doPlaceは常に「空マスへの合法手(裏返し>0)」のはず。違反時のみ警告（挙動は不変・RULE_DEBUG=falseで無効）。
+  if(window.RULE_DEBUG!==false){
+    if(board[y*S+x]!=='') console.error(`[RULE違反] ${n}番が既に埋まったマス(${x},${y})へ着手`);
+    else if(flipsBeforeUpdate.length===0) console.error(`[RULE違反] ${n}番(${x},${y})の着手で裏返し0＝非合法着手`);
+  }
+  const prevBoard=board.slice(); // 【診断用】着手前の盤面を保持
   board=applyMove(board,x,y,n);renderBoard(board);
   const after=[1,2,3,4].map(k=>countC(board,k));
+  // ===== 【診断ログ】色が0になった瞬間、原因の手と裏返しをF12コンソールへ出力（挙動は不変）=====
+  // window.WIPE_DEBUG=false で無効化。victimが0件なら「正規の挟み以外で0になった」＝真のバグ疑い。
+  if(window.WIPE_DEBUG!==false){
+    for(let t=1;t<=4;t++){
+      if(before[t-1]>0 && after[t-1]===0){
+        const flipped=flipsBeforeUpdate.map(i=>({x:i%S,y:Math.floor(i/S),from:prevBoard[i]}));
+        const victim=flipped.filter(c=>c.from===String(t));
+        console.log(`%c[WIPE] ${t}番が0に！ → ${n}番が (${x},${y}) に着手`,'color:#e74c3c;font-weight:bold;font-size:13px');
+        console.log(`  この手で裏返った${t}番の駒(${victim.length}個): `+(victim.map(c=>`(${c.x},${c.y}) ${t}→${n}`).join(' , ')||'(なし)'));
+        console.log(`  この手で裏返った全駒(${flipped.length}個): `+(flipped.map(c=>`(${c.x},${c.y}) ${c.from}→${n}`).join(' , ')||'(なし)'));
+        if(victim.length===0){
+          console.log(`%c  ⚠ この着手では${t}番の駒は1つも裏返っていません＝正規の挟み以外で0になった可能性（真のバグ疑い）。要報告。`,'color:#ff8800;font-weight:bold');
+        } else {
+          console.log(`%c  ✓ ${n}番の正規の挟みで${t}番の最後の駒が裏返り0になりました（ルール通り）。`,'color:#33cc66');
+        }
+        console.log(`  着手前 ${t}番の位置: `+prevBoard.map((v,i)=>v===String(t)?`(${i%S},${Math.floor(i/S)})`:null).filter(Boolean).join(' , '));
+      }
+    }
+  }
   const myGrp=SENTE.includes(n)?SENTE:GOTE;
   const opGrp=SENTE.includes(n)?GOTE:SENTE;
   const CORNERS=[[0,0],[0,8],[8,0],[8,8]];
@@ -3995,17 +5037,15 @@ async function doPlace(x,y,n){
   for(const t of myGrp){
     if(before[t-1]>0&&after[t-1]===0){
       gameEnded=true; clearHints();
-      const bm=document.getElementById('boardMsg');
-      if(bm) bm.classList.add('win-msg');
-      const opSide=SENTE.includes(n)?'後手':'先手';
-      const opSideE=SENTE.includes(n)?'2nd':'1st';
-      // 自滅：置く手が1つしかなく、そこに置いたら自分の駒が0になった
-      const msgJa=`${n}番を置くと自分の駒が0個になりました（強制アウト）。置ける手がこれしかなかった場合でも即負けのルールです。${opSide}の勝ち！`;
-      const msgJaSlow=`${n}ばんが 0こに（きょうせい アウト）。おける マスが これだけでも そくまけ。${opSide}の かち！`;
-      const msgEn=`Self-Out: ${n} placed and wiped out their own piece — forced move, but the instant-loss rule applies! ${opSideE} wins!`;
-      showMsg(lang==='en'?msgEn:M(msgJa,msgJaSlow),'yellow',true);
-      // 説明メッセージを2.5秒表示してからゲームログポップアップ＋最終結果を表示
-      await wait(2500);
+      if(forcedExplainDone){
+        // 人間の強制アウト：説明は配置前に済ませた。今は埋まった盤面（自色が0）を見せる間を取る。
+        forcedExplainDone=false;
+        showMsg(tMsg('forcedOutFill'),'yellow',true);
+        await wait(2200);
+      } else {
+        // AI等：丁寧に説明してから結果へ
+        await explainForcedOut(n);
+      }
       endGame(n);
       return;
     }
@@ -4020,6 +5060,8 @@ async function doPlace(x,y,n){
     const counts=[1,2,3,4].map(n=>({n,c:countC(board,n)}));
     const maxC=Math.max(...counts.map(o=>o.c));
     const winners=counts.filter(o=>o.c===maxC);
+    // お手本ブック：人間が勝った対局の手を学習
+    finalizeGameLearning(winners.length>1?'draw':winners[0].n, null);
     let title='';
     if(lang==='en'){
       if(winners.length>1) title='Draw!';
@@ -4042,28 +5084,110 @@ async function doPlace(x,y,n){
     document.getElementById('btnRematch').style.display='';
     document.getElementById('btnRematch').style.opacity='';
     document.getElementById('btnRematch').style.pointerEvents='';
-    document.getElementById('btnRematch').textContent=lang==='en'?'Rematch':'リマッチ';
+    document.getElementById('btnRematch').textContent=tMsg('rematch');
     if(gameMode==='vs'||gameMode==='vs-flip'){
       document.getElementById('guestBtnRematch').style.opacity='';
       document.getElementById('guestBtnRematch').style.pointerEvents='';
-      document.getElementById('guestBtnRematch').textContent=lang==='en'?'Rematch':'リマッチ';
+      document.getElementById('guestBtnRematch').textContent=tMsg('rematch');
     }
     return;
   }
   const color=SENTE.includes(n)?'#88ddaa':'#dd8888';
-  showMsg(lang==='en'?`${NAMES[n]} placed.`:M(`${NAMES[n]} が置きました`,`${NAMES[n]}が　おきました`),color);
+  showMsg(tMsg('placed',{name:NAMES[n]}),color);
   await wait(300);
 }
 
 function advanceTurn(){turn=turn%4+1;setTimeout(()=>runTurn(),100);}
 
+// ===== 競技モード：チェスクロック本体 =====
+let clockSente=0, clockGote=0;       // 残り(ms)
+let clockActive=null;                // 'sente'|'gote'|null（計測中の側）
+let clockInterval=null, clockLast=0;
+let clockTopSide='gote', clockBotSide='sente'; // 上下パネルがどちらの側か
+
+function fmtClock(ms){
+  ms=Math.max(0,ms); const s=Math.ceil(ms/1000);
+  return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+}
+function clockSideOf(t){ return SENTE.includes(t)?'sente':'gote'; }
+function sideIsTimed(side){
+  if(!compMode) return false;
+  if(gameMode==='ai'||gameMode==='ai-flip'){
+    const team=side==='sente'?SENTE:GOTE;
+    return team.some(n=>humanTeam.includes(n)); // 人間側のみ計測
+  }
+  return true; // 対面・平行は両者計測
+}
+function clockInit(){
+  clockSente=clockGote=compTimeMs; clockActive=null; clockLast=performance.now();
+  if(clockInterval) clearInterval(clockInterval);
+  clockInterval=setInterval(clockTick,200);
+  updateClockUI();
+}
+function clockStop(){ if(clockInterval){clearInterval(clockInterval);clockInterval=null;} clockActive=null; }
+function clockTick(){
+  const now=performance.now(); const dt=now-clockLast; clockLast=now;
+  if(!compMode||clockActive===null||gameEnded){ updateClockUI(); return; }
+  if(clockActive==='sente'){ clockSente-=dt; if(clockSente<=0){clockSente=0;updateClockUI();clockTimeout('sente');return;} }
+  else { clockGote-=dt; if(clockGote<=0){clockGote=0;updateClockUI();clockTimeout('gote');return;} }
+  updateClockUI();
+}
+// 手番開始：計測対象の側ならactiveに、そうでなければ停止
+function clockOnTurnStart(t){
+  if(!compMode) return;
+  clockLast=performance.now();
+  clockActive = (phase==='play' && sideIsTimed(clockSideOf(t))) ? clockSideOf(t) : null;
+  updateClockUI();
+}
+// 着手確定：active側を止める（次の手番開始で再設定）
+function clockOnMove(){
+  if(!compMode) return;
+  clockTick();          // 経過分を確定
+  clockActive=null;
+  updateClockUI();
+}
+function clockTimeout(side){
+  if(gameEnded) return;
+  clockStop();
+  if(parMode) parTimeoutEnd(side);   // 平行モードは専用終局
+  else endGame(null, side);          // side（時間切れ）の負け＝相手の勝ち
+}
+function updateClockUI(){
+  // 対面/AI：上下の時計（平行モード中は隠す）
+  const top=document.getElementById('vsTopClock'), bot=document.getElementById('vsBotClock');
+  if(top&&bot){
+    const setEl=(el,side)=>{
+      if(!compMode||parMode){ el.style.display='none'; return; }
+      el.style.display='';
+      if(!sideIsTimed(side)){ el.textContent='AI'; el.className='vs-clock dim'; return; }
+      const ms = side==='sente'?clockSente:clockGote;
+      el.textContent=fmtClock(ms);
+      el.className='vs-clock'+(clockActive===side?' active':'')+(ms<=60000?' low':'');
+    };
+    setEl(top,clockTopSide); setEl(bot,clockBotSide);
+  }
+  // 平行：左右パネルの時計
+  const pl=document.getElementById('parLeftClock'), pr=document.getElementById('parRightClock');
+  if(pl&&pr){
+    const setPar=(el,team)=>{
+      if(!compMode||!parMode){ el.style.display='none'; return; }
+      el.style.display='';
+      const side = SENTE.includes(team[0])?'sente':'gote';
+      const ms = side==='sente'?clockSente:clockGote;
+      el.textContent=fmtClock(ms);
+      el.className='par-clock'+(clockActive===side?' active':'')+(ms<=60000?' low':'');
+    };
+    setPar(pl, parLeftTeam); setPar(pr, parRightTeam);
+  }
+}
+
 async function handleRevive(n){
   const rv=getReviveCells(board);
   if(rv.length===0){
-    showMsg(lang==='en'?`${NAMES[n]}: No space to revive. Skip.`:M(`${NAMES[n]} は復活できる場所がないためパスします`,`${NAMES[n]}は　ふっかつできる　ばしょが　ないため　パスします`),'yellow');
+    showMsg(tMsg('noRevivePass',{name:NAMES[n]}),'yellow');
     await wait(1400);return;
   }
-  showMsg(lang==='en'?`${NAMES[n]} is Out! Place 2 pieces to revive.`:M(`${NAMES[n]} アウト！2個復活できます`,`${NAMES[n]}が　アウト！　2こ　おいてください`),'yellow');
+  showMsg(tMsg('outRevive',{name:NAMES[n]}),'yellow');
   await wait(1800);
   if(isAiTurn(n)){
     // 復活配置：正しいルールに基づく戦略
@@ -4209,7 +5333,7 @@ async function handleRevive(n){
       const pick=rv2.find(c=>c.x===bestPair[1].x&&c.y===bestPair[1].y)||rv2[0];
       if(pick){board[pick.y*S+pick.x]=n.toString();renderBoard(board);await wait(600);}
     }
-    showMsg(lang==='en'?`${NAMES[n]} revived!`:M(`${NAMES[n]} が復活しました`,`${NAMES[n]}が　ふっかつしました`),'white');await wait(900);
+    showMsg(tMsg('revived',{name:NAMES[n]}),'white');await wait(900);
   } else {
     await placeRevive(n,1);
   }
@@ -4219,20 +5343,13 @@ function placeRevive(n,count){
   return new Promise(resolve=>{
     const rv=getReviveCells(board);
     if(rv.length===0){resolve();return;}
-    const tapMsg = count===1
-      ? M(`${NAMES[n]}：復活する場所をタップ`,`ふっかつする　マスを　タップ`,
-          lang==='en'?`${NAMES[n]}: Tap to revive (1 of 2).`:'')
-      : M(`もう1個タップしてください`,`もう　1こ　おいてください`,
-          lang==='en'?`${NAMES[n]}: Tap to revive (2 of 2).`:'');
-    showMsg(lang==='en'
-      ? (count===1?`${NAMES[n]}: Tap to revive (1 of 2).`:`${NAMES[n]}: Tap to revive (2 of 2).`)
-      : tapMsg,'yellow');
+    showMsg(count===1?tMsg('tapRevive1',{name:NAMES[n]}):tMsg('tapRevive2',{name:NAMES[n]}),'yellow');
     if(slowMode){
       showHints(rv,[],async(x,y)=>{
         clearHints();
         board[y*S+x]=n.toString();renderBoard(board);
         if(count>=2){
-          showMsg(lang==='en'?`${NAMES[n]} revived!`:M(`${NAMES[n]} が復活しました`,`${NAMES[n]}が　ふっかつしました`),'white');
+          showMsg(tMsg('revived',{name:NAMES[n]}),'white');
           await wait(900);resolve();
         } else {
           await placeRevive(n,count+1);resolve();
@@ -4253,16 +5370,16 @@ function placeRevive(n,count){
             clearHints();
             board[y*S+x]=n.toString();renderBoard(board);
             if(count>=2){
-              showMsg(lang==='en'?`${NAMES[n]} revived!`:M(`${NAMES[n]} が復活しました`,`${NAMES[n]}が　ふっかつしました`),'white');
+              showMsg(tMsg('revived',{name:NAMES[n]}),'white');
               await wait(900);resolve();
             } else {
               await placeRevive(n,count+1);resolve();
             }
           } else if(board[y*S+x]){
-            showMsg(lang==='en'?'That square is occupied.':'そこには置けません','yellow');
+            showMsg(tMsg('reviveOccupied'),'yellow');
             await wait(800);
           } else {
-            showMsg(lang==='en'?'Must place adjacent to existing pieces (not on the edge).':M('既存の駒に隣接する内側のマスに置いてください','きそんの　こまに　となりの　マスに　おいてください'),'yellow');
+            showMsg(tMsg('mustAdjacent'),'yellow');
             await wait(800);
           }
         };
@@ -4277,45 +5394,269 @@ function saveBoardState(){
   if(moveHistory.length>60) moveHistory.shift();
 }
 function undoMove(){
-  if(moveHistory.length<=1){showMsg(lang==='en'?'Cannot undo further.':M('これ以上戻せません','これいじょう　もどせません'),'yellow');return;}
+  if(moveHistory.length<=1){showMsg(tMsg('cannotUndo'),'yellow');return;}
   clearHints();aiThinking=false;
   moveHistory.pop();
   const h=moveHistory[moveHistory.length-1];
   board=h.board.slice();turn=h.turn;phase=h.phase;
   reviveQueue=h.reviveQueue.slice();passCount=h.passCount;
   renderBoard(board);
-  showMsg(lang==='en'?`Undone. (${NAMES[turn]}'s turn)`:M(`1手戻しました（${NAMES[turn]}のターン）`,`1て　もどしました（${NAMES[turn]}の　ターン）`),'yellow');
+  showMsg(tMsg('undone',{name:NAMES[turn]}),'yellow');
   setTimeout(()=>{if(phase==='setup') runSetup();else runTurn();},900);
 }
 
-function endGame(selfDestructPlayer=null){
+// ===== AI強化モード =====
+let trainActive = false;
+let trainGames  = [];
+let trainSenteDone = 0;
+let trainGoteDone  = 0;
+let trainPendingAdj = null; // 分析で算出した調整案
+// window参照を同期（コンソールデバッグ用）
+Object.defineProperty(window,'trainGames',{get:()=>trainGames,set:v=>{trainGames=v;},configurable:true});
+
+function trainProgressText(){
+  return `先手 ${trainSenteDone}/2　後手 ${trainGoteDone}/2`;
+}
+
+function startTrainSession(){
+  trainActive = true;
+  trainGames  = [];
+  trainSenteDone = 0;
+  trainGoteDone  = 0;
+  trainPendingAdj = null;
+  // 進捗バーを初期化して表示
+  const bar = document.getElementById('trainProgressBar');
+  if(bar){ bar.textContent = '🔬 強化モード開始！先後を選んでゲームを始めてください'; bar.style.display=''; }
+  document.getElementById('subModeMenu').style.display='none';
+  showOrderScreen();
+}
+
+function recordTrainGame(winnerN, selfDestructPlayer, finalBoard){
+  const humanSide = humanTeam.includes(1) ? 'sente' : 'gote';
+  const humanGrp  = humanSide === 'sente' ? [1,3] : [2,4];
+  const humanWon  = selfDestructPlayer
+    ? !humanGrp.includes(selfDestructPlayer)
+    : (winnerN === 'draw' ? false : humanGrp.includes(winnerN));
+
+  const hMoves = gameLog.moves.filter(m => m.who === 'human');
+  const aMoves = gameLog.moves.filter(m => m.who === 'ai');
+  const hFlips = hMoves.reduce((s,m) => s + (m.flipsCount||0), 0);
+  const aFlips = aMoves.reduce((s,m) => s + (m.flipsCount||0), 0);
+  const hCorners = gameLog.corners.filter(c => humanGrp.includes(c.n)).length;
+  const aCorners = gameLog.corners.filter(c => !humanGrp.includes(c.n)).length;
+
+  trainGames.push({
+    side: humanSide, humanWon,
+    winnerN, selfDestruct: selfDestructPlayer,
+    finalCounts: [1,2,3,4].map(k=>({n:k,c:countC(finalBoard,k)})),
+    hCorners, aCorners,
+    hFlips, aFlips,
+    hMoveCount: hMoves.length,
+    aMoveCount: aMoves.length,
+  });
+  if(humanSide === 'sente') trainSenteDone++;
+  else trainGoteDone++;
+}
+
+function analyzeAndShowTrain(){
+  const g = trainGames;
+  const humanWins   = g.filter(r => r.humanWon).length;
+  const senteWins   = g.filter(r => r.side==='sente' && r.humanWon).length;
+  const goteWins    = g.filter(r => r.side==='gote'  && r.humanWon).length;
+
+  const totalHFlips = g.reduce((s,r) => s + r.hFlips, 0);
+  const totalAFlips = g.reduce((s,r) => s + r.aFlips, 0);
+  const totalHMoves = g.reduce((s,r) => s + r.hMoveCount, 0);
+  const totalAMoves = g.reduce((s,r) => s + r.aMoveCount, 0);
+  const hFlipRate   = totalHMoves ? (totalHFlips / totalHMoves).toFixed(2) : 0;
+  const aFlipRate   = totalAMoves ? (totalAFlips / totalAMoves).toFixed(2) : 0;
+
+  const totalHCorners = g.reduce((s,r) => s + r.hCorners, 0);
+  const totalACorners = g.reduce((s,r) => s + r.aCorners, 0);
+
+  // 調整案を算出
+  const adj = { corner: 0, edge: 0, threat: 0, survival: 0 };
+  const reasons = [];
+
+  // 勝率による判断
+  if(humanWins >= 3){
+    adj.corner   += 2000;
+    adj.edge     += 100;
+    adj.survival += 3000;
+    reasons.push(`人間が${humanWins}/4勝 → AIの評価を強化`);
+  } else if(humanWins <= 1){
+    adj.corner   -= 1500;
+    adj.edge     -= 80;
+    reasons.push(`AIが${4-humanWins}/4勝 → AIを少し抑制`);
+  }
+
+  // 角獲得
+  if(totalHCorners > totalACorners + 2){
+    adj.corner += 2500;
+    reasons.push(`人間の角獲得(${totalHCorners})がAI(${totalACorners})より多い → 角優先度アップ`);
+  } else if(totalACorners > totalHCorners + 2){
+    adj.corner -= 1000;
+    reasons.push(`AIの角獲得(${totalACorners})が多い → 角重み微調整`);
+  }
+
+  // 1手あたりのひっくり返し効率
+  if(parseFloat(hFlipRate) > parseFloat(aFlipRate) + 0.5){
+    adj.threat   += 50;
+    adj.edge     += 80;
+    reasons.push(`人間の手効率(${hFlipRate})がAI(${aFlipRate})を上回る → 盤面評価を強化`);
+  }
+
+  // 先手/後手の偏り
+  if(senteWins >= 2 && goteWins === 0){
+    adj.survival += 2000;
+    reasons.push('先手で2連勝・後手0勝 → 後手時の生存重視を強化');
+  } else if(goteWins >= 2 && senteWins === 0){
+    adj.corner += 1500;
+    reasons.push('後手で2連勝・先手0勝 → 先手時の角攻勢を強化');
+  }
+
+  // 調整後の値
+  const newCorner   = Math.max(10000, Math.min(30000, AI_CORNER_W  + adj.corner));
+  const newEdge     = Math.max(400,   Math.min(1600,  AI_EDGE_W    + adj.edge));
+  const newThreat   = Math.max(150,   Math.min(500,   AI_THREAT_W  + adj.threat));
+  const newSurvival = Math.max(15000, Math.min(45000, AI_SURVIVAL1 + adj.survival));
+
+  trainPendingAdj = { newCorner, newEdge, newThreat, newSurvival };
+
+  // HTML生成
+  const wc = (v) => `<span class="val ${v>0?'good':'bad'}">${v>0?'+':''}${v}</span>`;
+  const wa = (cur, nxt) => {
+    const d = nxt - cur;
+    return `<span class="val">${cur}</span> → <span class="val ${d>0?'good':d<0?'bad':''}">${nxt}</span>`;
+  };
+
+  let html = `
+    <div class="train-verdict">
+      人間 <strong style="color:#2ecc71">${humanWins}</strong> 勝 /
+      AI <strong style="color:#e74c3c">${4-humanWins}</strong> 勝<br>
+      先手: ${senteWins}/2勝　後手: ${goteWins}/2勝
+    </div>
+    <div class="train-section">
+      <div class="train-section-label">対戦データ</div>
+      <div class="train-row"><span>1手あたりのひっくり返し（人間）</span><span class="val">${hFlipRate}</span></div>
+      <div class="train-row"><span>1手あたりのひっくり返し（AI）</span><span class="val">${aFlipRate}</span></div>
+      <div class="train-row"><span>角獲得　人間 / AI</span><span class="val">${totalHCorners} / ${totalACorners}</span></div>
+    </div>
+    <div class="train-section">
+      <div class="train-section-label">分析コメント</div>`;
+  if(reasons.length === 0){
+    html += `<div class="train-row">バランスが取れています。調整は最小限です。</div>`;
+  } else {
+    reasons.forEach(r => { html += `<div class="train-adj-row"><div class="train-adj-name">• ${r}</div></div>`; });
+  }
+  html += `</div>
+    <div class="train-section">
+      <div class="train-section-label">AI重み調整案</div>
+      <div class="train-row"><span>角の価値</span>${wa(AI_CORNER_W, newCorner)}</div>
+      <div class="train-row"><span>辺支配の価値</span>${wa(AI_EDGE_W, newEdge)}</div>
+      <div class="train-row"><span>脅威係数</span>${wa(AI_THREAT_W, newThreat)}</div>
+      <div class="train-row"><span>生存ペナルティ</span>${wa(AI_SURVIVAL1, newSurvival)}</div>
+    </div>`;
+
+  document.getElementById('trainAnalysisBody').innerHTML = html;
+  document.getElementById('trainOverlay').classList.add('show');
+}
+
+// コンソールからアクセス可能にする
+window.trainGames     = null; // 後でポインタを張る（下で更新）
+window.showTrainAnalysis = ()=>{ if(trainGames.length>=4){ analyzeAndShowTrain(); } else { console.log('データ不足: trainGames=', trainGames.length, trainGames); buildAnalysisFromStorage(); } };
+window.debugTrain     = ()=>{ console.log('trainActive:', trainActive, '| sente:', trainSenteDone, '| gote:', trainGoteDone, '| games:', trainGames.length, trainGames); };
+
+// KStorageの過去データから最新4件を分析に使うフォールバック
+function buildAnalysisFromStorage(){
+  KStorage.get('katube_records').then(res=>{
+    const all = res ? JSON.parse(res.value) : [];
+    const ai4 = all.filter(r=>r.mode==='ai').slice(-4);
+    if(ai4.length < 4){ console.log('KStorageにも十分なデータなし:', ai4.length, '件'); return; }
+    // 簡易変換してtrainGamesに入れ直して分析
+    trainGames = ai4.map(r=>{
+      const humanGrp = r.humanSide==='sente'?[1,3]:[2,4];
+      const humanWon = r.selfDestruct
+        ? !humanGrp.includes(r.selfDestruct)
+        : (r.winner==='draw'?false:humanGrp.includes(r.winner));
+      return {
+        side: r.humanSide,
+        humanWon,
+        winnerN: r.winner,
+        selfDestruct: r.selfDestruct,
+        finalCounts: r.counts,
+        hCorners:0, aCorners:0,       // KStorageには角データなし
+        hFlips:0,   aFlips:0,         // KStorageにはflipデータなし
+        hMoveCount: r.totalMoves||0,
+        aMoveCount: r.totalMoves||0,
+      };
+    });
+    trainSenteDone = trainGames.filter(g=>g.side==='sente').length;
+    trainGoteDone  = trainGames.filter(g=>g.side==='gote').length;
+    console.log('KStorageから', trainGames.length, '件読み込み完了。分析を開始します。');
+    analyzeAndShowTrain();
+  }).catch(e=>console.log('KStorage読み込み失敗:',e));
+}
+
+// (訓練UIボタンは削除済み・JS関数のみ保持)
+
+// ===== 強制アウトの丁寧な解説（ゆっくり・段階表示）=====
+// 強制アウトは稀なので、なぜ止まり・なぜ勝敗が決したのかを順を追って説明し、
+// ついでにこのゲームの醍醐味（自分の色を絶やさない駆け引き）を伝える。
+// ゲームは既に終了しているため、時間をかけても進行に影響しない。
+async function explainForcedOut(loserN){
+  const bm=document.getElementById('boardMsg');
+  if(bm) bm.classList.remove('win-msg'); // 説明は通常サイズ（枠内に収める）
+  const isHumanGame = (gameMode==='ai'||gameMode==='ai-flip');
+  const loserHuman  = isHumanGame && humanTeam.includes(loserN);
+  const aiLost      = isHumanGame && !loserHuman;
+  const winW        = SENTE.includes(loserN) ? tMsg('side2') : tMsg('side1'); // 勝者側（敗者の反対）
+  // 段階表示ヘルパー（blinkで注目／slowModeはさらにゆっくり）
+  const step = async (key, vars, ms)=>{
+    showMsg(tMsg(key, vars), 'yellow', true);
+    await wait(slowMode ? Math.round(ms*1.4) : ms);
+  };
+  const who = loserHuman ? tMsg('youParen') : (aiLost ? tMsg('aiParen') : '');
+  // ① 何が起きたか
+  await step('fo1', {n:loserN, who}, 3400);
+  // ② なぜ強制されたか
+  await step('fo2', {}, 3800);
+  // ③ ルールと勝敗
+  if(loserHuman){
+    await step('fo3human', {}, 4200);
+    await step('fo3humanWin', {w:winW}, 3200);
+  } else if(aiLost){
+    await step('fo3aiLost', {}, 4200);
+    await step('fo3aiWin', {}, 3200);
+  } else {
+    await step('fo3other', {w:winW}, 4200);
+  }
+  // ④ ゲームの醍醐味
+  await step('fo4', {}, 4400);
+}
+
+function endGame(selfDestructPlayer=null, timeoutLoserSide=null){
   gameEnded=true;clearHints();
+  if(compMode) clockStop();
   const counts=[1,2,3,4].map(n=>({n,c:countC(board,n)}));
   const maxC=Math.max(...counts.map(o=>o.c));
   const winners=counts.filter(o=>o.c===maxC);
+  // お手本ブック：人間が勝った対局の手を学習（時間切れは学習対象外）
+  if(timeoutLoserSide===null) finalizeGameLearning(winners.length>1?'draw':winners[0].n, selfDestructPlayer);
   let title='';
-  if(lang==='en'){
-    if(selfDestructPlayer!==null){
-      const side=SENTE.includes(selfDestructPlayer)?'2nd Team':'1st Team';
-      title=`Self-Out: ${selfDestructPlayer}! ${side} wins!`;
-    } else if(winners.length>1){
-      title='Draw!';
-    } else {
-      const w=winners[0];
-      const side=SENTE.includes(w.n)?'1st':'2nd';
-      title=`${w.n} (${side}) wins! ${maxC} pieces`;
-    }
+  if(timeoutLoserSide!==null){
+    const lL = timeoutLoserSide==='sente' ? tMsg('side1') : tMsg('side2');
+    const wL = timeoutLoserSide==='sente' ? tMsg('side2') : tMsg('side1');
+    title = tMsg('timeoutTitle', {l:lL, w:wL});
+  } else if(selfDestructPlayer!==null){
+    const wSide = SENTE.includes(selfDestructPlayer) ? tMsg('side2') : tMsg('side1');
+    title = tMsg('selfOutTitle', {n:selfDestructPlayer, w:wSide});
+  } else if(winners.length>1){
+    title = tMsg('drawTitle');
   } else {
-    if(selfDestructPlayer!==null){
-      const side=SENTE.includes(selfDestructPlayer)?'後手':'先手';
-      title=`${selfDestructPlayer}番 強制アウト！${side}の勝ち`;
-    } else if(winners.length>1){
-      title='引き分け！';
-    } else {
-      const w=winners[0];
-      const side=SENTE.includes(w.n)?'先手':'後手';
-      title=`${w.n}番（${side}）の勝ち！ ${maxC}個`;
-    }
+    const w=winners[0];
+    const wSide = SENTE.includes(w.n) ? tMsg('side1') : tMsg('side2');
+    title = tMsg('winTitle', {n:w.n, w:wSide, c:maxC});
   }
 
   // ===== ゲームログ出力（画面ポップアップ）=====
@@ -4396,7 +5737,29 @@ function endGame(selfDestructPlayer=null){
     }catch(e){ console.log('保存例外:',e); }
   }
 
-  // メッセージボードに結果表示（ポップアップなし・大きく）
+  // ===== AI強化モード：ゲーム記録 =====
+  if(trainActive && (gameMode==='ai'||gameMode==='ai-flip')){
+    const winnerN2 = winners.length>1 ? 'draw' : winners[0].n;
+    recordTrainGame(winnerN2, selfDestructPlayer, board);
+    const total = trainSenteDone + trainGoteDone;
+    // 進捗バー更新
+    const bar = document.getElementById('trainProgressBar');
+    if(bar){
+      if(total >= 4){
+        bar.textContent = '🔬 4ゲーム完了！分析中…';
+        bar.style.display = '';
+      } else {
+        bar.textContent = `🔬 強化モード ${total}/4ゲーム完了　先手 ${trainSenteDone}/2　後手 ${trainGoteDone}/2`;
+        bar.style.display = '';
+      }
+    }
+    // 4ゲーム完了で分析を表示
+    if(total >= 4){
+      setTimeout(()=>analyzeAndShowTrain(), 1400);
+    }
+  }
+
+  // メッセージボードに結果表示
   document.getElementById('resultOverlay').classList.remove('show');
   const bm3=document.getElementById('boardMsg');
   if(bm3) bm3.classList.add('win-msg');
@@ -4405,11 +5768,11 @@ function endGame(selfDestructPlayer=null){
   document.getElementById('btnRematch').style.display='';
   document.getElementById('btnRematch').style.opacity='';
   document.getElementById('btnRematch').style.pointerEvents='';
-  document.getElementById('btnRematch').textContent=lang==='en'?'Rematch':'リマッチ';
+  document.getElementById('btnRematch').textContent=tMsg('rematch');
   if(gameMode==='vs'||gameMode==='vs-flip'){
     document.getElementById('guestBtnRematch').style.opacity='';
     document.getElementById('guestBtnRematch').style.pointerEvents='';
-    document.getElementById('guestBtnRematch').textContent=lang==='en'?'Rematch':'リマッチ';
+    document.getElementById('guestBtnRematch').textContent=tMsg('rematch');
   }
 }
 
@@ -4431,8 +5794,8 @@ function resetPending(){
   const restore = [
     ['btnUndo', L.btnUndo[lang]],
     ['guestBtnUndo', L.btnUndo[lang]],
-    ['btnRematch', lang==='en'?'Rematch':'リマッチ'],
-    ['guestBtnRematch', lang==='en'?'Rematch':'リマッチ'],
+    ['btnRematch', tMsg('rematch')],
+    ['guestBtnRematch', tMsg('rematch')],
     ['btnQuit', L.btnQuit[lang]],
     ['guestBtnQuit', L.btnQuit[lang]],
   ];
@@ -4453,15 +5816,15 @@ function requestUndo(side){
   if(gameMode==='ai'){ undoMove(); return; }
   if(!undoPending){
     undoPending=true; undoPendingSide=side;
-    const who=side==='main'?(lang==='en'?'Host':'主'):(lang==='en'?'Guest':'ゲスト');
+    const who=side==='main'?(tMsg('host')):(tMsg('guest'));
     const myBtn=document.getElementById(side==='main'?'btnUndo':'guestBtnUndo');
     const otherBtn=document.getElementById(side==='main'?'guestBtnUndo':'btnUndo');
-    if(myBtn){myBtn.classList.remove('waiting');myBtn.classList.add('cancellable');myBtn.textContent=lang==='en'?'Cancel':'やめる';}
-    if(otherBtn){otherBtn.classList.add('waiting');otherBtn.textContent=lang==='en'?'Approve?':'承認？';}
-    showDoubleMsg(lang==='en'?`${who} wants to undo. Other player tap Approve?`:`${who}が1手戻すを押しました。相手も承認？を押せば実行します`);
+    if(myBtn){myBtn.classList.remove('waiting');myBtn.classList.add('cancellable');myBtn.textContent=tMsg('cancel');}
+    if(otherBtn){otherBtn.classList.add('waiting');otherBtn.textContent=tMsg('approve');}
+    showDoubleMsg(tMsg('undoReq',{who}));
   } else if(undoPendingSide===side){
     resetPending();
-    showDoubleMsg(lang==='en'?'Undo cancelled.':'1手戻すをキャンセルしました。');
+    showDoubleMsg(tMsg('undoCancelled'));
   } else {
     resetPending();
     undoMove();
@@ -4480,15 +5843,15 @@ function requestRematch(side){
   }
   if(!rematchPending){
     rematchPending=true; rematchPendingSide=side;
-    const who=side==='main'?(lang==='en'?'Host':'主'):(lang==='en'?'Guest':'ゲスト');
+    const who=side==='main'?(tMsg('host')):(tMsg('guest'));
     const myBtn=document.getElementById(side==='main'?'btnRematch':'guestBtnRematch');
     const otherBtn=document.getElementById(side==='main'?'guestBtnRematch':'btnRematch');
-    if(myBtn){myBtn.classList.remove('waiting');myBtn.classList.add('cancellable');myBtn.textContent=lang==='en'?'Cancel':'やめる';}
-    if(otherBtn){otherBtn.classList.add('waiting');otherBtn.textContent=lang==='en'?'Approve?':'承認？';}
-    showDoubleMsg(lang==='en'?`${who} wants rematch. Other player tap Approve?`:`${who}がリマッチを押しました。相手も承認？を押せば実行します`);
+    if(myBtn){myBtn.classList.remove('waiting');myBtn.classList.add('cancellable');myBtn.textContent=tMsg('cancel');}
+    if(otherBtn){otherBtn.classList.add('waiting');otherBtn.textContent=tMsg('approve');}
+    showDoubleMsg(tMsg('rematchReq',{who}));
   } else if(rematchPendingSide===side){
     resetPending();
-    showDoubleMsg(lang==='en'?'Rematch cancelled.':'リマッチをキャンセルしました。');
+    showDoubleMsg(tMsg('rematchCancelled'));
     return;
   } else {
     resetPending();
@@ -4507,15 +5870,15 @@ function requestQuit(side){
   if(gameMode==='ai'){aiThinking=false;gameEnded=true;clearHints();showMenuScreen();return;}
   if(!quitPending){
     quitPending=true; quitPendingSide=side;
-    const who=side==='main'?(lang==='en'?'Host':'主'):(lang==='en'?'Guest':'ゲスト');
+    const who=side==='main'?(tMsg('host')):(tMsg('guest'));
     const myBtn=document.getElementById(side==='main'?'btnQuit':'guestBtnQuit');
     const otherBtn=document.getElementById(side==='main'?'guestBtnQuit':'btnQuit');
-    if(myBtn){myBtn.classList.remove('waiting');myBtn.classList.add('cancellable');myBtn.textContent=lang==='en'?'Cancel':'やめる';}
-    if(otherBtn){otherBtn.classList.add('waiting');otherBtn.textContent=lang==='en'?'Approve?':'承認？';}
-    showDoubleMsg(lang==='en'?`${who} wants to go to menu. Other player tap Approve?`:`${who}がメニューへを押しました。相手も承認？を押せば移動します`);
+    if(myBtn){myBtn.classList.remove('waiting');myBtn.classList.add('cancellable');myBtn.textContent=tMsg('cancel');}
+    if(otherBtn){otherBtn.classList.add('waiting');otherBtn.textContent=tMsg('approve');}
+    showDoubleMsg(tMsg('menuReq',{who}));
   } else if(quitPendingSide===side){
     resetPending();
-    showDoubleMsg(lang==='en'?'Menu cancelled.':'メニューへの移動をキャンセルしました。');
+    showDoubleMsg(tMsg('menuCancelled'));
     return;
   } else {
     resetPending();
@@ -4602,10 +5965,17 @@ function initParBoard(){
   }
 
   // ResizeObserverでpar-board-areaのサイズ確定後に正確なサイズを適用（iPad対応）
+  // 同サイズでの再発火を無視してフィードバックループを防止
   if(parBoardObserver) parBoardObserver.disconnect();
   const area = document.querySelector('.par-board-area');
   if(area && window.ResizeObserver){
-    parBoardObserver = new ResizeObserver(()=>{
+    let _obsW = 0, _obsH = 0;
+    parBoardObserver = new ResizeObserver(entries => {
+      const r = entries[0].contentRect;
+      const w = Math.round(r.width);
+      const h = Math.round(r.height);
+      if(w === _obsW && h === _obsH) return;
+      _obsW = w; _obsH = h;
       resizeParBoard();
     });
     parBoardObserver.observe(area);
@@ -4703,8 +6073,8 @@ function startParallel(leftTeam, rightTeam){
   const lLabel=document.getElementById('parLeftLabel');
   const rLabel=document.getElementById('parRightLabel');
   const lSente=leftTeam.some(n=>SENTE.includes(n));
-  if(lLabel) lLabel.textContent=lang==='en'?(lSente?'1st (1&3)':'2nd (2&4)'):(lSente?'先手 （1・3番）':'後手 （2・4番）');
-  if(rLabel) rLabel.textContent=lang==='en'?(!lSente?'1st (1&3)':'2nd (2&4)'):(!lSente?'先手 （1・3番）':'後手 （2・4番）');
+  if(lLabel) lLabel.textContent=lSente?tMsg('parLabelSente'):tMsg('parLabelGote');
+  if(rLabel) rLabel.textContent=!lSente?tMsg('parLabelSente'):tMsg('parLabelGote');
   // ボタン
   document.getElementById('parLeftUndo').onclick  = ()=>parRequestUndo('left');
   document.getElementById('parRightUndo').onclick = ()=>parRequestUndo('right');
@@ -4712,6 +6082,8 @@ function startParallel(leftTeam, rightTeam){
   document.getElementById('parRightQuit').onclick  = ()=>parRequestQuit('right');
   document.getElementById('parLeftRematch').onclick  = ()=>parRequestRematch('left');
   document.getElementById('parRightRematch').onclick = ()=>parRequestRematch('right');
+  // 競技モード：チェスクロック初期化（左=parLeftTeam, 右=parRightTeam）
+  if(compMode){ clockInit(); } else { clockStop(); updateClockUI(); }
   // parBoardの初期化（レイアウト確定後に全て実行）
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
@@ -4722,7 +6094,7 @@ function startParallel(leftTeam, rightTeam){
       }
       renderParBoard(board);
       updateParUI();
-      showParMsg(lang==='en'?'Game Start!':'ゲームスタート！');
+      showParMsg(tMsg('parGameStart'));
       setTimeout(()=>runParSetup(),300);
     });
   });
@@ -4731,12 +6103,12 @@ function startParallel(leftTeam, rightTeam){
 async function runParSetup(){
   if(gameEnded) return;
   if(turn===2){
-    showParMsg(lang==='en'?'Player 2: Place on one of 4 squares around center.':'2番：中央の上下左右4マスに置いてください');
+    showParMsg(tMsg('setup2'));
     parShowSetupHints([[4,3],[4,5],[3,4],[5,4]]);
   } else if(turn===3){
     const opts=getSetup3Moves(board);
     if(!opts.length){ board=Array(S*S).fill('');board[4*S+4]='1';turn=2;renderParBoard(board);setTimeout(()=>runParSetup(),300);return;}
-    showParMsg(lang==='en'?'Player 3: Place to form a 2×2.':'3番：2×2を作れる場所に置いてください');
+    showParMsg(tMsg('setup3'));
     parShowSetupHints(opts.map(o=>[o.x,o.y]));
   } else if(turn===4){
     const opts=getSetup4Moves(board);
@@ -4745,7 +6117,7 @@ async function runParSetup(){
     board[opts[oi].y*S+opts[oi].x]='4';
     phase='play'; turn=1;
     renderParBoard(board);
-    showParMsg(lang==='en'?'2×2 complete! Game start!':'2×2完成！ゲームスタート！');
+    showParMsg(tMsg('setupDone'));
     setTimeout(()=>runParTurn(),1200);
   }
 }
@@ -4785,6 +6157,7 @@ async function handleParClick(x,y){
   const isSafe=safe.find(m=>m.x===x&&m.y===y);
   const isSui=legal.find(m=>m.x===x&&m.y===y)&&!isSafe;
   if(isSafe){
+    clockOnMove(); // 競技モード：着手した側の時計を停止
     clearParHints();
     saveBoardState();
     const before=[1,2,3,4].map(k=>countC(board,k));
@@ -4793,13 +6166,13 @@ async function handleParClick(x,y){
     const after=[1,2,3,4].map(k=>countC(board,k));
     for(let i=0;i<4;i++) if(before[i]>0&&after[i]===0) reviveQueue.push(i+1);
     if(board.every(v=>v!=='')){parEndGame();return;}
-    showParMsg(lang==='en'?`Player ${turn} placed.`:`${turn}番が置きました`);
+    showParMsg(tMsg('placed',{name:NAMES[turn]}));
     await wait(300);
     advanceParTurn();
   } else if(isSui){
-    showParMsg(lang==='en'?'Cannot place — Out!':'そこはアウトになります');
+    showParMsg(tMsg('parOutCannot'));
   } else if(!board[y*S+x]){
-    showParMsg(lang==='en'?'Cannot place there.':'そこには置けません');
+    showParMsg(tMsg('cannotPlace'));
   }
 }
 
@@ -4812,10 +6185,11 @@ async function runParTurn(){
     advanceParTurn(); return;
   }
   updateParUI();
+  clockOnTurnStart(turn); // 競技モード：この手番の側の時計を作動
   const legal=getLegal(board,turn);
   const safe=getSafeLegal(board,turn);
   if(legal.length===0){
-    showParMsg(lang==='en'?`Player ${turn}: Pass.`:`${turn}番はパスします`);
+    showParMsg(tMsg('noMovesPass',{name:NAMES[turn]}));
     await wait(1200); passCount++;
     if(passCount>=4){parEndGame();return;}
     advanceParTurn(); return;
@@ -4828,14 +6202,14 @@ async function runParTurn(){
     safe.forEach(({x,y})=>parCells[y][x].classList.add('hint-ok'));
     suicides.forEach(({x,y})=>parCells[y][x].classList.add('hint-suicide'));
   }
-  showParMsg(lang==='en'?`Player ${turn}: Tap to place.`:`${turn}番：置くマスをタップ`);
+  showParMsg(tMsg('tapToPlace',{name:NAMES[turn]}));
 }
 
 async function handleParRevive(n){
   updateParUI();
   const rv=getReviveCells(board);
-  if(!rv.length){showParMsg(lang==='en'?`Player ${n}: No space.`:`${n}番：復活スペースなし`);await wait(1200);return;}
-  showParMsg(lang==='en'?`Player ${n}: Tap to revive.`:M(`${NAMES[n]}：復活する場所をタップ`,`ふっかつする　マスを　タップ`,''));
+  if(!rv.length){showParMsg(tMsg('noRevivePass',{name:NAMES[n]}));await wait(1200);return;}
+  showParMsg(tMsg('tapRevive1',{name:NAMES[n]}));
   await parPlaceRevive(n,1);
 }
 
@@ -4853,7 +6227,7 @@ function parPlaceRevive(n,count){
         if(!board[y*S+x]){
           done=true; clearParHints();
           board[y*S+x]=n.toString(); renderParBoard(board);
-          if(count>=2){showParMsg(lang==='en'?`Player ${n} revived!`:`${n}番が復活しました`);await wait(800);resolve();}
+          if(count>=2){showParMsg(tMsg('revived',{name:NAMES[n]}));await wait(800);resolve();}
           else {await parPlaceRevive(n,count+1);resolve();}
         }
       };
@@ -4864,14 +6238,26 @@ function parPlaceRevive(n,count){
 
 function advanceParTurn(){turn=turn%4+1;setTimeout(()=>runParTurn(),100);}
 
+function parTimeoutEnd(side){
+  gameEnded=true; clearParHints(); clockStop();
+  const loser  = side==='sente' ? tMsg('side1') : tMsg('side2');
+  const winner = side==='sente' ? tMsg('side2') : tMsg('side1');
+  showParMsg(tMsg('timeoutTitle',{l:loser,w:winner}));
+  ['parLeftRematch','parRightRematch'].forEach(id=>{
+    const b=document.getElementById(id); if(b){b.style.display='';b.style.opacity='';b.style.pointerEvents='';}
+  });
+  updateClockUI();
+}
+
 function parEndGame(){
   gameEnded=true; clearParHints();
+  if(compMode) clockStop();
   const counts=[1,2,3,4].map(n=>({n,c:countC(board,n)}));
   const maxC=Math.max(...counts.map(o=>o.c));
   const winners=counts.filter(o=>o.c===maxC);
   let title='';
-  if(winners.length>1) title=lang==='en'?'Draw!':'引き分け！';
-  else { const w=winners[0];const side=SENTE.includes(w.n)?'先手':'後手';title=lang==='en'?`${w.n} (${SENTE.includes(w.n)?'1st':'2nd'}) WINS! ${maxC}pc`:`${w.n}番（${side}）の勝ち！ ${maxC}個`; }
+  if(winners.length>1) title=tMsg('drawTitle');
+  else { const w=winners[0];const wSide=SENTE.includes(w.n)?tMsg('side1'):tMsg('side2');title=tMsg('winTitle',{n:w.n,w:wSide,c:maxC}); }
   showParMsg(title);
   // リマッチボタン有効化
   ['parLeftRematch','parRightRematch'].forEach(id=>{
@@ -4887,9 +6273,9 @@ let parUndoPending=false, parQuitPending=false, parRematchPending=false;
 function parResetPending(){
   parUndoPending=false; parQuitPending=false; parRematchPending=false;
   parUndoPendingSide=null; parQuitPendingSide=null; parRematchPendingSide=null;
-  [['parLeftUndo',lang==='en'?'Undo':'1手戻す'],['parRightUndo',lang==='en'?'Undo':'1手戻す'],
-   ['parLeftQuit',lang==='en'?'Menu':'メニューへ'],['parRightQuit',lang==='en'?'Menu':'メニューへ'],
-   ['parLeftRematch',lang==='en'?'Rematch':'リマッチ'],['parRightRematch',lang==='en'?'Rematch':'リマッチ']
+  [['parLeftUndo',tMsg('undoBtn')],['parRightUndo',tMsg('undoBtn')],
+   ['parLeftQuit',tMsg('menuBtn')],['parRightQuit',tMsg('menuBtn')],
+   ['parLeftRematch',tMsg('rematch')],['parRightRematch',tMsg('rematch')]
   ].forEach(([id,txt])=>{
     const b=document.getElementById(id);
     if(b){b.classList.remove('waiting','cancellable');b.textContent=txt;}
@@ -4902,20 +6288,20 @@ function parRequestUndo(side){
     const myId=side==='left'?'parLeftUndo':'parRightUndo';
     const othId=side==='left'?'parRightUndo':'parLeftUndo';
     const myB=document.getElementById(myId); const othB=document.getElementById(othId);
-    if(myB){myB.classList.add('cancellable');myB.textContent=lang==='en'?'Cancel':'やめる';}
-    if(othB){othB.classList.add('waiting');othB.textContent=lang==='en'?'Approve?':'承認？';}
-    showParMsg(lang==='en'?'Undo requested. Other player approve?':'1手戻すが要求されました。相手も承認？を');
+    if(myB){myB.classList.add('cancellable');myB.textContent=tMsg('cancel');}
+    if(othB){othB.classList.add('waiting');othB.textContent=tMsg('approve');}
+    showParMsg(tMsg('reqUndo'));
   } else if(parUndoPendingSide===side){
-    parResetPending(); showParMsg(lang==='en'?'Cancelled.':'キャンセルしました');
+    parResetPending(); showParMsg(tMsg('cancelled'));
   } else {
     parResetPending();
-    if(moveHistory.length<=1){showParMsg(lang==='en'?'Cannot undo.':'これ以上戻せません');return;}
+    if(moveHistory.length<=1){showParMsg(tMsg('cannotUndo'));return;}
     moveHistory.pop();
     const h=moveHistory[moveHistory.length-1];
     board=h.board.slice();turn=h.turn;phase=h.phase;
     reviveQueue=h.reviveQueue.slice();passCount=h.passCount;
     renderParBoard(board);
-    showParMsg(lang==='en'?'Undone.':'1手戻しました');
+    showParMsg(tMsg('undoneShort'));
     setTimeout(()=>runParTurn(),600);
   }
 }
@@ -4925,11 +6311,11 @@ function parRequestQuit(side){
     parQuitPending=true; parQuitPendingSide=side;
     const myB=document.getElementById(side==='left'?'parLeftQuit':'parRightQuit');
     const othB=document.getElementById(side==='left'?'parRightQuit':'parLeftQuit');
-    if(myB){myB.classList.add('cancellable');myB.textContent=lang==='en'?'Cancel':'やめる';}
-    if(othB){othB.classList.add('waiting');othB.textContent=lang==='en'?'Approve?':'承認？';}
-    showParMsg(lang==='en'?'Menu requested. Other player approve?':'メニューへの移動。相手も承認？を');
+    if(myB){myB.classList.add('cancellable');myB.textContent=tMsg('cancel');}
+    if(othB){othB.classList.add('waiting');othB.textContent=tMsg('approve');}
+    showParMsg(tMsg('reqMenu'));
   } else if(parQuitPendingSide===side){
-    parResetPending(); showParMsg(lang==='en'?'Cancelled.':'キャンセルしました');
+    parResetPending(); showParMsg(tMsg('cancelled'));
   } else {
     parResetPending();
     document.getElementById('parallelScreen').classList.remove('show');
@@ -4946,11 +6332,11 @@ function parRequestRematch(side){
     parRematchPending=true; parRematchPendingSide=side;
     const myB=document.getElementById(side==='left'?'parLeftRematch':'parRightRematch');
     const othB=document.getElementById(side==='left'?'parRightRematch':'parLeftRematch');
-    if(myB){myB.classList.add('cancellable');myB.textContent=lang==='en'?'Cancel':'やめる';}
-    if(othB){othB.classList.add('waiting');othB.textContent=lang==='en'?'Approve?':'承認？';}
-    showParMsg(lang==='en'?'Rematch requested. Other player approve?':'リマッチ要求。相手も承認？を');
+    if(myB){myB.classList.add('cancellable');myB.textContent=tMsg('cancel');}
+    if(othB){othB.classList.add('waiting');othB.textContent=tMsg('approve');}
+    showParMsg(tMsg('reqRematch'));
   } else if(parRematchPendingSide===side){
-    parResetPending(); showParMsg(lang==='en'?'Cancelled.':'キャンセルしました');
+    parResetPending(); showParMsg(tMsg('cancelled'));
   } else {
     parResetPending();
     ['parLeftRematch','parRightRematch'].forEach(id=>{
@@ -5022,29 +6408,74 @@ document.getElementById('btnResultMenu').onclick = ()=>{
   document.getElementById('resultOverlay').classList.remove('show');showMenuScreen();
 };
 
-document.getElementById('btnLang').onclick = ()=>{
-  lang = lang==='ja' ? 'en' : 'ja';
+// ===== 言語セレクタ（ドロップダウン）=====
+function buildLangMenu(){
+  const m=document.getElementById('langMenu');
+  m.innerHTML = LANGS.map(l=>`<div class="lang-item${l.code===lang?' cur':''}" data-code="${l.code}">${l.name}</div>`).join('');
+  m.querySelectorAll('.lang-item').forEach(it=>{
+    it.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      setLang(it.dataset.code);
+      m.classList.remove('show');
+    });
+  });
+}
+function setLang(code){
+  lang = code;
+  try{ KStorage.set('katsube_lang', code); }catch(e){}
   applyLang();
   if(demoActive){ stopDemo(); setTimeout(()=>runDemo(),200); }
+}
+document.getElementById('btnLang').onclick = (e)=>{
+  e.stopPropagation();
+  buildLangMenu();
+  document.getElementById('langMenu').classList.toggle('show');
 };
+document.addEventListener('click', ()=>{ const m=document.getElementById('langMenu'); if(m) m.classList.remove('show'); });
+// 起動時に保存済み言語を復元
+KStorage.get('katsube_lang').then(res=>{
+  if(res && res.value && LANGS.some(l=>l.code===res.value)){ lang=res.value; applyLang(); if(demoActive){stopDemo();setTimeout(()=>runDemo(),200);} }
+}).catch(()=>{});
 applyLang();
 
 // === 新メニュー: 難易度選択 ===
 document.getElementById('btnRelax').addEventListener('click', ()=>{
-  difficulty = 'relax';
-  showSubModeMenu('🌿 リラックスモード');
+  difficulty = 'relax'; compMode = false;
+  showSubModeMenu('relax');
 });
 document.getElementById('btnIntermediate').addEventListener('click', ()=>{
-  difficulty = 'intermediate';
-  showSubModeMenu('⚔️ 中級モード');
+  difficulty = 'intermediate'; compMode = false;
+  showSubModeMenu('intermediate');
 });
+// 競技モード：持ち時間設定画面へ
 document.getElementById('btnCompetition').addEventListener('click', ()=>{
-  // 近日公開 — タップしても何もしない
-  showMsg('競技モードは近日公開です！', 'yellow', false);
+  compMode = true; difficulty = 'intermediate'; // AI対戦は中級AIで実力確認
+  document.getElementById('difficultyMenu').style.display='none';
+  document.getElementById('timeMenu').style.display='';
+});
+function pickCompTime(min){
+  min = Math.max(5, Math.min(180, Math.round(min)));
+  compTimeMs = min*60*1000;
+  document.getElementById('timeMenu').style.display='none';
+  showSubModeMenu('competition', min);
+}
+document.querySelectorAll('#timeMenu .time-btn[data-min]').forEach(btn=>{
+  btn.addEventListener('click', ()=>pickCompTime(parseInt(btn.dataset.min,10)));
+});
+document.getElementById('timeCustomGo').addEventListener('click', ()=>{
+  const v = parseInt(document.getElementById('timeCustomInput').value,10);
+  if(isNaN(v)){ document.getElementById('timeCustomInput').value=30; return; }
+  pickCompTime(v);
+});
+document.getElementById('btnTimeBack').addEventListener('click', ()=>{
+  compMode = false;
+  document.getElementById('timeMenu').style.display='none';
+  document.getElementById('difficultyMenu').style.display='';
 });
 document.getElementById('btnDifficultyBack').addEventListener('click', ()=>{
   document.getElementById('subModeMenu').style.display='none';
-  document.getElementById('difficultyMenu').style.display='';
+  if(compMode){ document.getElementById('timeMenu').style.display=''; }
+  else { document.getElementById('difficultyMenu').style.display=''; }
 });
 
 // === 新メニュー: 対戦形式選択 ===
@@ -5061,14 +6492,23 @@ document.getElementById('btnSubParallel').addEventListener('click', ()=>{
   document.getElementById('btnVsParallel').click();
 });
 
-function showSubModeMenu(label){
+function showSubModeMenu(mode, min){
+  subModeCtx = { mode: mode||'intermediate', min: min||0 };
   document.getElementById('difficultyMenu').style.display='none';
-  document.getElementById('subModeLabel').textContent = label + ' — 対戦形式を選んでください';
+  renderSubModeLabel();
   document.getElementById('subModeMenu').style.display='';
 }
 
 // 起動
 runDemo();
+
+// ===== PWA: Service Worker 登録（オフライン対応・ホーム画面アプリ化）=====
+// file:// では無効。https もしくは localhost で配信時に有効化される。
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW登録失敗:', e));
+  });
+}
 </script>
 </body>
 </html>
